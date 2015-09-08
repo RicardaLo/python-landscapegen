@@ -1,9 +1,7 @@
 # =======================================================================================================================
 # Name: Landscape generator  -  landscapegen
 # Purpose: The script convert feature layers to rasters and assemble a surface covering land-use map
-# Authors: Flemming Skov & Lars Dalby - Oct-Dec 2014
-# Last large update: October 19, 2014
-# Note:  This version uses the new field polygon theme that covers all of Denmark
+# Authors: Flemming Skov & Lars Dalby - September 2015
 
 # IMPORT SYSTEM MODULES
 import arcpy, traceback, sys, time, gc
@@ -16,12 +14,12 @@ print "Model landscape generator started: " + nowTime
 print "... system modules checked"
 
 # DATA - paths to data, output gdb, scratch folder and model landscape mask
-outPath = "O:/ST_LandskabsGenerering/outputs/kvadrater/haslev/haslev.gdb/"                    # saves maps here
+outPath = "c:/Users/lada/Landskabsgenerering/Norge/norway.gdb/"                    # saves maps here
 localSettings = "O:/ST_LandskabsGenerering/outputs/kvadrater/haslev/project.gdb/haslevmask"   # project folder with mask
-gisDB = "O:/ST_LandskabsGenerering/gis/dkgis.gdb"                                             # input features
-scratchDB = "O:/ST_LandskabsGenerering/outputs/kvadrater/haslev/scratch"                      # scratch folder for tempfiles
-asciiexp = "O:/ST_LandskabsGenerering/outputs/kvadrater/haslev/ASCII_haslev.txt"              # export in ascii (for ALMaSS)
-reclasstable = "O:/ST_LandskabsGenerering/outputs/kvadrater/haslev/reclass.txt"               # reclass ascii table
+gisDB = "c:/Users/lada/Landskabsgenerering/Norge/norwaygis.gdb"                    # input features
+scratchDB = "c:/Users/lada/Landskabsgenerering/Norge/scratch"                      # scratch folder for tempfiles
+asciiexp = "c:/Users/lada/Landskabsgenerering/Norge/ASCII_haslev.txt"              # export in ascii (for ALMaSS)
+reclasstable = "c:/Users/lada/Landskabsgenerering/Norge/reclass.txt"               # reclass ascii table
 
 # MODEL SETTINGS
 arcpy.env.overwriteOutput = True
@@ -104,13 +102,19 @@ try:
 
 # 1) CONVERSION - from feature layers to raster
 
-# 1 - land and sea (land_hav)
-  if landhav_c == 1:
+# 1 - Water
+  if Water_c == 1:
     print "Processing base map (land/sea) ..."
-    if arcpy.Exists(outPath + "landhav"):
-      arcpy.Delete_management(outPath + "landhav")
+    if arcpy.Exists(outPath + "Water"):
+      arcpy.Delete_management(outPath + "Water")
       print "... deleting existing raster"
-    arcpy.PolygonToRaster_conversion("land_hav", "Land", outPath + "landhav", "CELL_CENTER", "NONE", "1")
+    arcpy.PolygonToRaster_conversion("T32_1702vann_flate", "POLY", outPath + "Water", "CELL_CENTER", "NONE", "1")
+
+
+
+
+
+
 
 # 105 - slopes along larger roads (skrt105)
   if skrt105_c == 1:
