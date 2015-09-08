@@ -38,9 +38,9 @@ default = 1  # 1 -> run process; 0 -> not run process
 vejnet_c = default      #create road theme
 
 #CONVERSION  - features to raster layers
-Water_c = default   #land_sea
-PublicLanduse_c = default   #land_sea
-
+Water_c = 0   #land_sea
+PublicLanduse100_c = default   #land_sea
+Buildings250_c = 1
 print " "
 
 #####################################################################################################
@@ -57,7 +57,7 @@ try:
       print "... deleting existing raster"
     arcpy.PolygonToRaster_conversion("T32_1702vann_flate", "OBJTYPE", outPath + "Water", "CELL_CENTER", "NONE", "1")
 
-  if PublicLanduse_c == 1:
+  if PublicLanduse100_c == 1:
     print "Processing PublicLanduse ..."
     if arcpy.Exists(outPath + "PublicLanduse"):
       arcpy.Delete_management(outPath + "PublicLanduse")
@@ -69,12 +69,23 @@ try:
   remap = RemapValue([["Grustak", 101], ["Tømmervelte", 102],["Steinbrudd", 103],["Anleggsområde", 104],["Gravplass", 105],["Park", 106],
   ["Lekeplass", 107], ["SportIdrettPlass", 108], ["Golfbane", 109], ["IndustriOmråde", 110], ["Fyllplass", 111], ["Fyllplass", 111],
   ["Skytebane", 112], ["Campingplass", 113], ["Rasteplass", 114], ["Steintipp", 115], ["Gruve", 116]])
-
   # Execute Reclassify
   outReclassify = Reclassify(inRaster, reclassField, remap, "NODATA")
-
   # Save the output 
   outReclassify.save(outPath + "PublicLanduse")
+  arcpy.Delete_management(outPath + "tmpRaster")
+
+# Buildings
+  if Buildings250_c == 1:
+    print "Processing buildings ..."
+    if arcpy.Exists(outPath + "Buildings"):
+      arcpy.Delete_management(outPath + "Buildings")
+      print "... deleting existing raster"
+    arcpy.PolygonToRaster_conversion("T32_1702bygning_flate", "OBJTYPE", outPath + "tmpRaster", "CELL_CENTER", "NONE", "1")
+    rasIsNull = IsNull(outPath + "tmpRaster")
+    rasTemp = Con(rasIsNull == 1, 1, 250)
+    rasTemp.save(outPath + "Buildings")
+    arcpy.Delete_management(outPath + "tmpRaster")
 
   endTime = time.strftime('%X %x')
   print ""
