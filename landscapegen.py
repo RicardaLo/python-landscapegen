@@ -41,8 +41,8 @@ default = 0  # 1 -> run process; 0 -> not run process
 Water_c = default   #land_sea
 PublicLanduse100_c = default   #land_sea
 Buildings250_c = default
-Pylon150_c = 1
-Paths_c = 1
+Pylon150_c = default
+Paths_c = default
 print " "
 
 #####################################################################################################
@@ -99,10 +99,6 @@ try:
     rasTemp = Con(eucDistTemp < 1.5, 150, 1)
     rasTemp.save(outPath + "Pylon150")
 
-  endTime = time.strftime('%X %x')
-  print ""
-  print "Landscape generated: " + endTime
-
 # Paths 
   if Paths_c == 1:
     print "Processing paths  ..."
@@ -113,6 +109,30 @@ try:
     rasTemp = Con(eucDistTemp < 1.51, 175, 1)
     rasTemp.save(outPath + "Paths")
 
+# Roads
+  if Roads120_c == 1:
+    print "Processing Roads ..."
+    if arcpy.Exists(outPath + "Roads"):
+      arcpy.Delete_management(outPath + "Roads")
+      print "... deleting existing raster"
+    arcpy.PolygonToRaster_conversion("T32_1702veg_flate", "OBJTYPE", outPath + "tmpRaster", "CELL_CENTER", "NONE", "1")
+  # Set local variables
+    inRaster = outPath + "tmpRaster"
+    reclassField = "OBJTYPE"
+    remap = RemapValue([["Veg", 121], ["GangSykkelveg", 122],["Trafikkøy", 123],["Parkeringsområde", 124]])
+  # Execute Reclassify
+    outReclassify = Reclassify(inRaster, reclassField, remap, "NODATA")
+  # Save the output 
+    outReclassify.save(outPath + "Roads")
+    arcpy.Delete_management(outPath + "tmpRaster")
+
+
+
+
+
+  endTime = time.strftime('%X %x')
+  print ""
+  print "Landscape generated: " + endTime
 
 except:
     tb = sys.exc_info()[2]
