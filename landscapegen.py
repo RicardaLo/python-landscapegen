@@ -43,7 +43,8 @@ PublicLanduse100_c = default   #land_sea
 Buildings250_c = default
 Pylon150_c = default
 Paths_c = default
-Roads120_c = 1
+Roads120_c = default
+Railway_c = 1
 print " "
 
 #####################################################################################################
@@ -127,6 +128,15 @@ try:
     outReclassify.save(outPath + "Roads")
     arcpy.Delete_management(outPath + "tmpRaster")
 
+# Railway
+  if Railway_c == 1:
+    print "Processing railway tracks ..."
+    if arcpy.Exists(outPath + "Railway"):
+      arcpy.Delete_management(outPath + "Railway")
+      print "... deleting existing raster"
+    eucDistTemp = EucDistance("T32_1702bane_linje", "", "1", "")
+    rasTemp = Con(eucDistTemp < 4.5, 130, 1)
+    rasTemp.save(outPath + "Railway")
 
 
 
