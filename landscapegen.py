@@ -56,7 +56,7 @@ try:
       arcpy.Delete_management(outPath + "Water")
       print "... deleting existing raster"
     arcpy.PolygonToRaster_conversion("T32_1702vann_flate", "OBJTYPE", outPath + "Water", "CELL_CENTER", "NONE", "1")
-
+# Public landuse
   if PublicLanduse100_c == 1:
     print "Processing PublicLanduse ..."
     if arcpy.Exists(outPath + "PublicLanduse"):
@@ -86,6 +86,16 @@ try:
     rasTemp = Con(rasIsNull == 1, 1, 250)
     rasTemp.save(outPath + "Buildings")
     arcpy.Delete_management(outPath + "tmpRaster")
+
+# Pylons 
+  if Pylon150_c == 1:
+    print "Processing pylons ..."
+    if arcpy.Exists(outPath + "Pylon150"):
+      arcpy.Delete_management(outPath + "Pylon150")
+      print "... deleting existing raster"
+    eucDistTemp = EucDistance("T32_1702ledning_punkt", "", "1", "")
+    rasTemp = Con(eucDistTemp < 1.5, 150, 1)
+    rasTemp.save(outPath + "Pylon150")
 
   endTime = time.strftime('%X %x')
   print ""
