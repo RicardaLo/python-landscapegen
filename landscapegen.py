@@ -43,6 +43,7 @@ PublicLanduse100_c = default   #land_sea
 Buildings250_c = default
 Pylon150_c = default
 Paths_c = default
+Roads120_c = 1
 print " "
 
 #####################################################################################################
