@@ -32,15 +32,16 @@ print "... model settings read"
 
 # MODEL EXECUTION - controls which processes are executed
 
-default = 1  # 1 -> run process; 0 -> not run process
+default = 0  # 1 -> run process; 0 -> not run process
 
 #MOSAIC
-vejnet_c = default      #create road theme
+# vejnet_c = default      #create road theme
 
 #CONVERSION  - features to raster layers
-Water_c = 0   #land_sea
+Water_c = default   #land_sea
 PublicLanduse100_c = default   #land_sea
-Buildings250_c = 1
+Buildings250_c = default
+Pylon150_c = 1
 print " "
 
 #####################################################################################################
