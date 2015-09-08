@@ -35,7 +35,7 @@ print "... model settings read"
 default = 1  # 1 -> run process; 0 -> not run process
 
 #MOSAIC
-# vejnet_c = default      #create road theme
+vejnet_c = default      #create road theme
 
 #CONVERSION  - features to raster layers
 Water_c = default   #land_sea
@@ -62,8 +62,10 @@ try:
     if arcpy.Exists(outPath + "PublicLanduse"):
       arcpy.Delete_management(outPath + "PublicLanduse")
       print "... deleting existing raster"
+    arcpy.PolygonToRaster_conversion("T32_1702arealbruk_flate", "OBJTYPE", outPath + "tmpRaster", "CELL_CENTER", "NONE", "1")
+  # Set local variables
   inRaster = outPath + "tmpRaster"
-  reclassField = "OBJTYPE" 
+  reclassField = "OBJTYPE"
   remap = RemapValue([["Grustak", 101], ["Tømmervelte", 102],["Steinbrudd", 103],["Anleggsområde", 104],["Gravplass", 105],["Park", 106],
   ["Lekeplass", 107], ["SportIdrettPlass", 108], ["Golfbane", 109], ["IndustriOmråde", 110], ["Fyllplass", 111], ["Fyllplass", 111],
   ["Skytebane", 112], ["Campingplass", 113], ["Rasteplass", 114], ["Steintipp", 115], ["Gruve", 116]])
