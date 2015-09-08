@@ -66,16 +66,16 @@ try:
       print "... deleting existing raster"
     arcpy.PolygonToRaster_conversion("T32_1702arealbruk_flate", "OBJTYPE", outPath + "tmpRaster", "CELL_CENTER", "NONE", "1")
   # Set local variables
-  inRaster = outPath + "tmpRaster"
-  reclassField = "OBJTYPE"
-  remap = RemapValue([["Grustak", 101], ["Tømmervelte", 102],["Steinbrudd", 103],["Anleggsområde", 104],["Gravplass", 105],["Park", 106],
-  ["Lekeplass", 107], ["SportIdrettPlass", 108], ["Golfbane", 109], ["IndustriOmråde", 110], ["Fyllplass", 111], ["Fyllplass", 111],
-  ["Skytebane", 112], ["Campingplass", 113], ["Rasteplass", 114], ["Steintipp", 115], ["Gruve", 116]])
+    inRaster = outPath + "tmpRaster"
+    reclassField = "OBJTYPE"
+    remap = RemapValue([["Grustak", 101], ["Tømmervelte", 102],["Steinbrudd", 103],["Anleggsområde", 104],["Gravplass", 105],["Park", 106],
+    ["Lekeplass", 107], ["SportIdrettPlass", 108], ["Golfbane", 109], ["IndustriOmråde", 110], ["Fyllplass", 111], ["Fyllplass", 111],
+    ["Skytebane", 112], ["Campingplass", 113], ["Rasteplass", 114], ["Steintipp", 115], ["Gruve", 116]])
   # Execute Reclassify
-  outReclassify = Reclassify(inRaster, reclassField, remap, "NODATA")
+    outReclassify = Reclassify(inRaster, reclassField, remap, "NODATA")
   # Save the output 
-  outReclassify.save(outPath + "PublicLanduse")
-  arcpy.Delete_management(outPath + "tmpRaster")
+    outReclassify.save(outPath + "PublicLanduse")
+    arcpy.Delete_management(outPath + "tmpRaster")
 
 # Buildings
   if Buildings250_c == 1:
