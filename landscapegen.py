@@ -42,6 +42,7 @@ Water_c = default   #land_sea
 PublicLanduse100_c = default   #land_sea
 Buildings250_c = default
 Pylon150_c = 1
+Paths_c = 1
 print " "
 
 #####################################################################################################
@@ -101,6 +102,17 @@ try:
   endTime = time.strftime('%X %x')
   print ""
   print "Landscape generated: " + endTime
+
+# Paths 
+  if Paths_c == 1:
+    print "Processing paths  ..."
+    if arcpy.Exists(outPath + "Paths"):
+      arcpy.Delete_management(outPath + "Paths")
+      print "... deleting existing raster"
+    eucDistTemp = EucDistance("T32_1702traktorvegsti_linje", "", "1", "")
+    rasTemp = Con(eucDistTemp < 1.51, 175, 1)
+    rasTemp.save(outPath + "Paths")
+
 
 except:
     tb = sys.exc_info()[2]
