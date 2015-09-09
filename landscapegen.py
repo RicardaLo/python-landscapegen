@@ -38,46 +38,75 @@ default = 0  # 1 -> run process; 0 -> not run process
 # vejnet_c = default      #create road theme
 
 #CONVERSION  - features to raster layers
-Water_c = default   #land_sea
-PublicLanduse100_c = default   #land_sea
+BaseMap = default
 Buildings250_c = default
 Pylon150_c = default
 Paths_c = default
-Roads120_c = default
-Railway_c = 1
+Railway_c = default 
 print " "
 
 #####################################################################################################
 
 try:
+if BaseMap == 1:
+  print "Processing BaseMap ..."
+    if arcpy.Exists(outPath + "BaseMap"):
+      arcpy.Delete_management(outPath + "BaseMap")
+      print "... deleting existing raster"
+  arcpy.AddField_management(AR_merge, "COMBI", "LONG", "", "", 6)
 
+
+# Set local variables
+inTable = "parcels"
+fieldName = "areaclass"
+expression = "getClass(float(!SHAPE.area!))"
+codeblock = """def getClass(area):
+    if area <= 1000:
+        return 1
+    if area > 1000 and area <= 10000:
+        return 2
+    else:
+        return 3"""
+ 
+# Execute AddField
+arcpy.AddField_management(inTable, fieldName, "SHORT")
+ 
+# Execute CalculateField 
+arcpy.CalculateField_management(inTable, fieldName, expression, "PYTHON_9.3", 
+                                codeblock)
+
+
+
+
+    
 # 1) CONVERSION - from feature layers to raster
 
-# 1 - Water
-  if Water_c == 1:
-    print "Processing base map (land/sea) ..."
-    if arcpy.Exists(outPath + "Water"):
-      arcpy.Delete_management(outPath + "Water")
-      print "... deleting existing raster"
-    arcpy.PolygonToRaster_conversion("T32_1702vann_flate", "OBJTYPE", outPath + "Water", "CELL_CENTER", "NONE", "1")
-# Public landuse
-  if PublicLanduse100_c == 1:
-    print "Processing PublicLanduse ..."
-    if arcpy.Exists(outPath + "PublicLanduse"):
-      arcpy.Delete_management(outPath + "PublicLanduse")
-      print "... deleting existing raster"
-    arcpy.PolygonToRaster_conversion("T32_1702arealbruk_flate", "OBJTYPE", outPath + "tmpRaster", "CELL_CENTER", "NONE", "1")
-  # Set local variables
-    inRaster = outPath + "tmpRaster"
-    reclassField = "OBJTYPE"
-    remap = RemapValue([["Grustak", 101], ["Tømmervelte", 102],["Steinbrudd", 103],["Anleggsområde", 104],["Gravplass", 105],["Park", 106],
-    ["Lekeplass", 107], ["SportIdrettPlass", 108], ["Golfbane", 109], ["IndustriOmråde", 110], ["Fyllplass", 111], ["Fyllplass", 111],
-    ["Skytebane", 112], ["Campingplass", 113], ["Rasteplass", 114], ["Steintipp", 115], ["Gruve", 116]])
-  # Execute Reclassify
-    outReclassify = Reclassify(inRaster, reclassField, remap, "NODATA")
-  # Save the output 
-    outReclassify.save(outPath + "PublicLanduse")
-    arcpy.Delete_management(outPath + "tmpRaster")
+# # 1 - Water
+#   if Water_c == 1:
+#     print "Processing base map (land/sea) ..."
+#     if arcpy.Exists(outPath + "Water"):
+#       arcpy.Delete_management(outPath + "Water")
+#       print "... deleting existing raster"
+#     arcpy.PolygonToRaster_conversion("T32_1702vann_flate", "OBJTYPE", outPath + "Water", "CELL_CENTER", "NONE", "1")
+
+# # Public landuse
+#   if PublicLanduse100_c == 1:
+#     print "Processing PublicLanduse ..."
+#     if arcpy.Exists(outPath + "PublicLanduse"):
+#       arcpy.Delete_management(outPath + "PublicLanduse")
+#       print "... deleting existing raster"
+#     arcpy.PolygonToRaster_conversion("T32_1702arealbruk_flate", "OBJTYPE", outPath + "tmpRaster", "CELL_CENTER", "NONE", "1")
+#   # Set local variables
+#     inRaster = outPath + "tmpRaster"
+#     reclassField = "OBJTYPE"
+#     remap = RemapValue([["Grustak", 101], ["Tømmervelte", 102],["Steinbrudd", 103],["Anleggsområde", 104],["Gravplass", 105],["Park", 106],
+#     ["Lekeplass", 107], ["SportIdrettPlass", 108], ["Golfbane", 109], ["IndustriOmråde", 110], ["Fyllplass", 111], ["Fyllplass", 111],
+#     ["Skytebane", 112], ["Campingplass", 113], ["Rasteplass", 114], ["Steintipp", 115], ["Gruve", 116]])
+#   # Execute Reclassify
+#     outReclassify = Reclassify(inRaster, reclassField, remap, "NODATA")
+#   # Save the output 
+#     outReclassify.save(outPath + "PublicLanduse")
+#     arcpy.Delete_management(outPath + "tmpRaster")
 
 # Buildings
   if Buildings250_c == 1:
@@ -98,7 +127,7 @@ try:
       arcpy.Delete_management(outPath + "Pylon150")
       print "... deleting existing raster"
     eucDistTemp = EucDistance("T32_1702ledning_punkt", "", "1", "")
-    rasTemp = Con(eucDistTemp < 1.5, 150, 1)
+    rasTemp = Con(eucDistTemp < 1.5, 212, 1)  # almass code individual tree
     rasTemp.save(outPath + "Pylon150")
 
 # Paths 
@@ -108,34 +137,34 @@ try:
       arcpy.Delete_management(outPath + "Paths")
       print "... deleting existing raster"
     eucDistTemp = EucDistance("T32_1702traktorvegsti_linje", "", "1", "")
-    rasTemp = Con(eucDistTemp < 1.51, 175, 1)
+    rasTemp = Con(eucDistTemp < 1.51, 123, 1)  # almass code track
     rasTemp.save(outPath + "Paths")
 
-# Roads
-  if Roads120_c == 1:
-    print "Processing Roads ..."
-    if arcpy.Exists(outPath + "Roads"):
-      arcpy.Delete_management(outPath + "Roads")
-      print "... deleting existing raster"
-    arcpy.PolygonToRaster_conversion("T32_1702veg_flate", "OBJTYPE", outPath + "tmpRaster", "CELL_CENTER", "NONE", "1")
-  # Set local variables
-    inRaster = outPath + "tmpRaster"
-    reclassField = "OBJTYPE"
-    remap = RemapValue([["Veg", 121], ["GangSykkelveg", 122],["Trafikkøy", 123],["Parkeringsområde", 124]])
-  # Execute Reclassify
-    outReclassify = Reclassify(inRaster, reclassField, remap, "NODATA")
-  # Save the output 
-    outReclassify.save(outPath + "Roads")
-    arcpy.Delete_management(outPath + "tmpRaster")
+# # Roads
+#   if Roads120_c == 1:
+#     print "Processing Roads ..."
+#     if arcpy.Exists(outPath + "Roads"):
+#       arcpy.Delete_management(outPath + "Roads")
+#       print "... deleting existing raster"
+#     arcpy.PolygonToRaster_conversion("T32_1702veg_flate", "OBJTYPE", outPath + "tmpRaster", "CELL_CENTER", "NONE", "1")
+#   # Set local variables
+#     inRaster = outPath + "tmpRaster"
+#     reclassField = "OBJTYPE"
+#     remap = RemapValue([["Veg", 121], ["GangSykkelveg", 122],["Trafikkøy", 123],["Parkeringsområde", 124]])
+#   # Execute Reclassify
+#     outReclassify = Reclassify(inRaster, reclassField, remap, "NODATA")
+#   # Save the output 
+#     outReclassify.save(outPath + "Roads")
+#     arcpy.Delete_management(outPath + "tmpRaster")
 
-# Railway
+# Railway 
   if Railway_c == 1:
     print "Processing railway tracks ..."
     if arcpy.Exists(outPath + "Railway"):
       arcpy.Delete_management(outPath + "Railway")
       print "... deleting existing raster"
     eucDistTemp = EucDistance("T32_1702bane_linje", "", "1", "")
-    rasTemp = Con(eucDistTemp < 4.5, 130, 1)
+    rasTemp = Con(eucDistTemp < 4.5, 118, 1)  # almass code railway
     rasTemp.save(outPath + "Railway")
 
 
