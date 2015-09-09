@@ -69,8 +69,11 @@ try:
         return ARTYPE + ARTRESLAG + ARSKOGBON"""
     # Add field to populate with the concatenated ARTYPE, ARTRESLAG, ARSKOGBON 
     arcpy.AddField_management(inTable, fieldName, "SHORT", "", "", 6)
+    print '... adding field'
     arcpy.CalculateField_management(inTable, fieldName, expression, "PYTHON_9.3", codeblock)
+    print '... calculating field'
     arcpy.PolygonToRaster_conversion(outPath + "AR_merge", "COMBI", outPath + "BaseMap", "CELL_CENTER", "NONE", "1")
+    print '... converting features to raster'
   
 # Pylons 
   if Pylon150_c == 1:
