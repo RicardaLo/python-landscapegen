@@ -38,7 +38,7 @@ default = 0  # 1 -> run process; 0 -> not run process
 # vejnet_c = default      #create road theme
 
 #CONVERSION  - features to raster layers
-BaseMap = default
+BaseMap = 1
 Buildings250_c = default
 Pylon150_c = default
 Paths_c = default
@@ -48,27 +48,32 @@ print " "
 #####################################################################################################
 
 try:
-if BaseMap == 1:
-  print "Processing BaseMap ..."
+  if BaseMap == 1:
+    print "Processing BaseMap ..."
     if arcpy.Exists(outPath + "BaseMap"):
       arcpy.Delete_management(outPath + "BaseMap")
       print "... deleting existing raster"
-  # Merge the municipalities into a single feature layer:
-  arcpy.Merge_management(['T32_1702ar5_flate', 'T32_1719ar5_flate', 'T32_1721ar5_flate',
-   'T32_1756ar5_flate'], outPath + 'AR_merge')
-  # Set local variables
-  inTable = "AR_merge"
-  fieldName = "COMBI"
-  expression = "concat(!ARTYPE!, !ARTRESLAG!, !ARSKOGBON!)"
-  codeblock = """def concat(ARTYPE, ARTRESLAG, ARSKOGBON):
-      return ARTYPE + ARTRESLAG + ARSKOGBON"""
-  # Execute AddField
-  arcpy.AddField_management(AR_merge, "COMBI", "SHORT", "", "", 6)
-  # Execute CalculateField 
-  arcpy.CalculateField_management(inTable, fieldName, expression, "PYTHON_9.3", codeblock)
 
-arcpy.PolygonToRaster_conversion("T32_1702vann_flate", "OBJTYPE", outPath + "Water", "CELL_CENTER", "NONE", "1")
-
+      # Merge the municipalities into a single feature layer
+    arcpy.Merge_management(['T32_1702ar5_flate', 'T32_1719ar5_flate', 'T32_1721ar5_flate',
+    'T32_1756ar5_flate'], outPath + 'AR_merge')
+    # Set local variables
+    inTable = "AR_merge"
+    fieldName = "COMBI"
+    expression = "concat(!ARTYPE!, !ARTRESLAG!, !ARSKOGBON!)"
+    codeblock = """def concat(ARTYPE, ARTRESLAG, ARSKOGBON):
+        return ARTYPE + ARTRESLAG + ARSKOGBON"""
+    # Add field to populate with the concatenated ARTYPE, ARTRESLAG, ARSKOGBON 
+    arcpy.AddField_management(AR_merge, "COMBI", "SHORT", "", "", 6)
+    arcpy.CalculateField_management(inTable, fieldName, expression, "PYTHON_9.3", codeblock)
+    arcpy.PolygonToRaster_conversion("AR_merge", "COMBI", outPath + "BaseMap", "CELL_CENTER", "NONE", "1")
+  
+    inRaster = outPath + "tmpRaster"
+    reclassField = "OBJTYPE"
+    remap = RemapValue([["Veg", 121], ["GangSykkelveg", 122],["Trafikkøy", 123],["Parkeringsområde", 124]])
+    outReclassify = Reclassify(inRaster, reclassField, remap, "NODATA")
+    outReclassify.save(outPath + "Roads")
+    arcpy.Delete_management(outPath + "tmpRaster")
     
 # 1) CONVERSION - from feature layers to raster
 
