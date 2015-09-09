@@ -53,30 +53,21 @@ if BaseMap == 1:
     if arcpy.Exists(outPath + "BaseMap"):
       arcpy.Delete_management(outPath + "BaseMap")
       print "... deleting existing raster"
-  arcpy.AddField_management(AR_merge, "COMBI", "LONG", "", "", 6)
+  # Merge the municipalities into a single feature layer:
+  arcpy.Merge_management(['T32_1702ar5_flate', 'T32_1719ar5_flate', 'T32_1721ar5_flate',
+   'T32_1756ar5_flate'], outPath + 'AR_merge')
+  # Set local variables
+  inTable = "AR_merge"
+  fieldName = "COMBI"
+  expression = "concat(!ARTYPE!, !ARTRESLAG!, !ARSKOGBON!)"
+  codeblock = """def concat(ARTYPE, ARTRESLAG, ARSKOGBON):
+      return ARTYPE + ARTRESLAG + ARSKOGBON"""
+  # Execute AddField
+  arcpy.AddField_management(AR_merge, "COMBI", "SHORT", "", "", 6)
+  # Execute CalculateField 
+  arcpy.CalculateField_management(inTable, fieldName, expression, "PYTHON_9.3", codeblock)
 
-
-# Set local variables
-inTable = "parcels"
-fieldName = "areaclass"
-expression = "getClass(float(!SHAPE.area!))"
-codeblock = """def getClass(area):
-    if area <= 1000:
-        return 1
-    if area > 1000 and area <= 10000:
-        return 2
-    else:
-        return 3"""
- 
-# Execute AddField
-arcpy.AddField_management(inTable, fieldName, "SHORT")
- 
-# Execute CalculateField 
-arcpy.CalculateField_management(inTable, fieldName, expression, "PYTHON_9.3", 
-                                codeblock)
-
-
-
+arcpy.PolygonToRaster_conversion("T32_1702vann_flate", "OBJTYPE", outPath + "Water", "CELL_CENTER", "NONE", "1")
 
     
 # 1) CONVERSION - from feature layers to raster
