@@ -68,7 +68,7 @@ try:
     codeblock = """def concat(ARTYPE, ARTRESLAG, ARSKOGBON):
         return ARTYPE + ARTRESLAG + ARSKOGBON"""
     # Add field to populate with the concatenated ARTYPE, ARTRESLAG, ARSKOGBON 
-    arcpy.AddField_management(inTable, fieldName, "SHORT", "", "", 6)
+    arcpy.AddField_management(inTable, fieldName, "LONG", "", "", 6)
     print '... adding field'
     arcpy.CalculateField_management(inTable, fieldName, expression, "PYTHON_9.3", codeblock)
     print '... calculating field'
@@ -81,7 +81,9 @@ try:
     if arcpy.Exists(outPath + "Pylon150"):
       arcpy.Delete_management(outPath + "Pylon150")
       print "... deleting existing raster"
-    eucDistTemp = EucDistance("T32_1702ledning_punkt", "", "1", "")
+    arcpy.Merge_management(['T32_1702ledning_punkt', 'T32_1719ledning_punkt', 'T32_1721ledning_punkt',
+    'T32_1756ledning_punkt'], outPath + 'LedningPunkt_merge')
+    eucDistTemp = EucDistance("LedningPunkt_merge", "", "1", "")
     rasTemp = Con(eucDistTemp < 1.5, 150, 1)
     rasTemp.save(outPath + "Pylon150")
 
