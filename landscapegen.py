@@ -32,12 +32,12 @@ print "... model settings read"
 
 # MODEL EXECUTION - controls which processes are executed
 
-default = 0  # 1 -> run process; 0 -> not run process
+default = 1  # 1 -> run process; 0 -> not run process
 
 #CONVERSION  - features to raster layers
 BaseMap = default
-Buildings250_c = 1
-Pylon150_c = default
+Buildings_c = default
+Pylons_c = default
 Paths_c = default
 Railway_c = default
 print " "
@@ -45,14 +45,12 @@ print " "
 #####################################################################################################
 
 try:
-# 1) CONVERSION - from feature layers to raster
-
+# Base map
   if BaseMap == 1:
     print "Processing BaseMap ..."
     if arcpy.Exists(outPath + "BaseMap"):
       print "... deleting existing raster"
       arcpy.Delete_management(outPath + "BaseMap")
-
       # Merge the municipalities into a single feature layer
     print '... merging'
     arcpy.Merge_management(['T32_1702ar5_flate', 'T32_1719ar5_flate', 'T32_1721ar5_flate',
@@ -105,21 +103,21 @@ try:
     outReclassify.save(outPath + "BaseMap")
 
 # Pylons 
-  if Pylon150_c == 1:
+  if Pylons_c == 1:
     print "Processing pylons ..."
-    if arcpy.Exists(outPath + "Pylon150"):
-      arcpy.Delete_management(outPath + "Pylon150")
+    if arcpy.Exists(outPath + "Pylons"):
+      arcpy.Delete_management(outPath + "Pylons")
       print "... deleting existing raster"
     arcpy.Merge_management(['T32_1702ledning_punkt', 'T32_1719ledning_punkt', 'T32_1721ledning_punkt',
     'T32_1756ledning_punkt'], outPath + 'LedningPunkt_merge')
     print '... merging pylon layers'
     eucDistTemp = EucDistance(outPath + "LedningPunkt_merge", "", "1", "")
     print 'calculating euclidian distance'
-    rasTemp = Con(eucDistTemp < 1.5, 150, 1)
-    rasTemp.save(outPath + "Pylon150")
+    rasTemp = Con(eucDistTemp < 1.5, 212, 1)
+    rasTemp.save(outPath + "Pylons")
 
 # Buildings
-  if Buildings250_c == 1:
+  if Buildings_c == 1:
     print "Processing buildings ..."
     if arcpy.Exists(outPath + "Buildings"):
       print "... deleting existing raster"
@@ -161,7 +159,7 @@ try:
     print 'converting buildings to raster'
     arcpy.PolygonToRaster_conversion(outPath + "BygningFlate_merge", "OBJTYPE", outPath + "tmpRaster", "CELL_CENTER", "NONE", "1")
     rasIsNull = IsNull(outPath + "tmpRaster")
-    rasTemp = Con(rasIsNull == 1, 1, 250)
+    rasTemp = Con(rasIsNull == 1, 1, 5)
     rasTemp.save(outPath + "Buildings")
     arcpy.Delete_management(outPath + "tmpRaster")
   
@@ -169,8 +167,8 @@ try:
   if Paths_c == 1:
     print "Processing paths  ..."
     if arcpy.Exists(outPath + "Paths"):
-      arcpy.Delete_management(outPath + "Paths")
       print "... deleting existing raster"
+      arcpy.Delete_management(outPath + "Paths")
     print '... merging path layers'
     arcpy.Merge_management(['T32_1702traktorvegsti_linje', 'T32_1719traktorvegsti_linje', 'T32_1721traktorvegsti_linje',
     'T32_1756traktorvegsti_linje'], outPath + 'TraktorvegSti_merge')
@@ -178,16 +176,31 @@ try:
     rasTemp = Con(eucDistTemp < 1.51, 123, 1)
     rasTemp.save(outPath + "Paths")
 
+# Railway
+  if Railway_c == 1:
+    print "Processing railway tracks ..."
+    if arcpy.Exists(outPath + "Railway"):
+      print "... deleting existing raster"
+      arcpy.Delete_management(outPath + "Railway")
+    print '... merging railway layers'
+    arcpy.Merge_management(['T32_1702bane_linje', 'T32_1719bane_linje', 'T32_1721bane_linje',
+    'T32_1756bane_linje'], outPath + 'Banelinje_merge')
+    eucDistTemp = EucDistance(outPath + 'Banelinje_merge', "", "1", "")
+    rasTemp = Con(eucDistTemp < 4.5, 118, 1)
+    rasTemp.save(outPath + "Railways")
+
 # Stack
-  # BaseMap = Raster(outPath + BaseMap)
-  # Buildings = Raster(outPath + Buildings)
-  # Pylons = Raster(outPath + Pylon150)
+  BaseMap = Raster(outPath + 'BaseMap')
+  Buildings = Raster(outPath + 'Buildings')
+  Pylons = Raster(outPath + 'Pylons')
+  Railways = Raster(outPath + 'Railways')
 
-  # step1 = Con(Buildings == 1, BaseMap, Buildings)
-  # step2 = Con(Pylons == 1, step1, Pylons)
-  # step3 = Con(Paths == 1, step2, Paths)
+  step1 = Con(Buildings == 1, BaseMap, Buildings)
+  step2 = Con(Pylons == 1, step1, Pylons)
+  step3 = Con(Paths == 1, step2, Paths)
+  step4 = Con(Railways == 1, step3, Railways)
 
-
+  step4.save(outPath + 'Final')
 
   endTime = time.strftime('%X %x')
   print ""
