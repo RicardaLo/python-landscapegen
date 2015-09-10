@@ -4,7 +4,7 @@
 # Authors: Flemming Skov & Lars Dalby - September 2015
 
 # IMPORT SYSTEM MODULES
-import arcpy, traceback, sys, time, gc
+import arcpy, traceback, sys, time, gc, os
 from arcpy import env
 from arcpy.sa import *
 arcpy.CheckOutExtension("Spatial")
@@ -127,6 +127,37 @@ try:
     print '... merging building layers'
     arcpy.Merge_management(['T32_1702bygning_flate', 'T32_1719bygning_flate', 'T32_1721bygning_flate',
     'T32_1756bygning_flate'], outPath + 'BygningFlate_merge')
+    print 'checking geometry'
+    arcpy.CheckGeometry_management(outPath + "BygningFlate_merge", outPath + "CG_Result")
+    # Table that was produced by Check Geometry tool
+    table = outPath + 'CG_Result'
+    # Create local variables
+    fcs = []
+    # Loop through the table and get the list of fcs
+    for row in arcpy.da.SearchCursor(table, ("CLASS")):
+        # Get the class (feature class) from the cursor
+        if not row[0] in fcs:
+            fcs.append(row[0])
+     
+    # Now loop through the fcs list, backup the bad geometries into fc + "_bad_geom"
+    # then repair the fc
+    print "> Processing {0} feature classes".format(len(fcs))
+    for fc in fcs:
+        print "Processing " + fc
+        lyr = 'temporary_layer'
+        if arcpy.Exists(lyr):
+            arcpy.Delete_management(lyr)
+        
+        tv = "cg_table_view"
+        if arcpy.Exists(tv):
+            arcpy.Delete_management(tv)
+    
+        arcpy.MakeTableView_management(table, tv, ("\"CLASS\" = '%s'" % fc))
+        arcpy.MakeFeatureLayer_management(fc, lyr)
+        arcpy.AddJoin_management(lyr, arcpy.Describe(lyr).OIDFieldName, tv, "FEATURE_ID")
+        arcpy.CopyFeatures_management(lyr, fc + "_bad_geom")
+        arcpy.RemoveJoin_management(lyr, os.path.basename(table))
+        arcpy.RepairGeometry_management(lyr)
     print 'converting buildings to raster'
     arcpy.PolygonToRaster_conversion(outPath + "BygningFlate_merge", "OBJTYPE", outPath + "tmpRaster", "CELL_CENTER", "NONE", "1")
     rasIsNull = IsNull(outPath + "tmpRaster")
@@ -148,13 +179,13 @@ try:
     rasTemp.save(outPath + "Paths")
 
 # Stack
-  BaseMap = Raster(outPath + BaseMap)
-  Buildings = Raster(outPath + Buildings)
-  Pylons = Raster(outPath + Pylon150)
+  # BaseMap = Raster(outPath + BaseMap)
+  # Buildings = Raster(outPath + Buildings)
+  # Pylons = Raster(outPath + Pylon150)
 
-  step1 = Con(Buildings == 1, BaseMap, Buildings)
-  step2 = Con(Pylons == 1, step1, Pylons)
-  step3 = Con(Paths == 1, step2, Paths)
+  # step1 = Con(Buildings == 1, BaseMap, Buildings)
+  # step2 = Con(Pylons == 1, step1, Pylons)
+  # step3 = Con(Paths == 1, step2, Paths)
 
 
 
