@@ -71,10 +71,9 @@ try:
          # Add the field value to the return value
          if s <> '':
            retval += s
-       # Strip of any leading separators before returning the value
-       return retval"""
+       return int(retval)"""
     # Add field to populate with the concatenated ARTYPE, ARTRESLAG, ARSKOGBON 
-    arcpy.AddField_management(inTable, fieldName, "TEXT", "", "", 6)
+    arcpy.AddField_management(inTable, fieldName, "LONG", "", "", 6)
     print '... adding field'
     arcpy.CalculateField_management(inTable, fieldName, expression, "PYTHON_9.3", codeblock)
     print '... calculating field'
