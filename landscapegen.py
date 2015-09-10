@@ -60,10 +60,21 @@ try:
     inTable = outPath + "AR_merge"
     fieldName = "COMBI"
     expression = "concat(!ARTYPE!, !ARTRESLAG!, !ARSKOGBON!)"
-    codeblock = """def concat(ARTYPE, ARTRESLAG, ARSKOGBON):
-        return ARTYPE + ARTRESLAG + ARSKOGBON"""
+    codeblock = """def concat(*args):
+       # Initialize the return value to an empty string,
+       retval = ""
+       # For each value passed in...
+       for t in args:
+         # Convert to a string (this catches any numbers),
+         # then remove leading and trailing blanks
+         s = str(t).strip()
+         # Add the field value to the return value
+         if s <> '':
+           retval += s
+       # Strip of any leading separators before returning the value
+       return retval"""
     # Add field to populate with the concatenated ARTYPE, ARTRESLAG, ARSKOGBON 
-    arcpy.AddField_management(inTable, fieldName, "LONG", "", "", 6)
+    arcpy.AddField_management(inTable, fieldName, "TEXT", "", "", 6)
     print '... adding field'
     arcpy.CalculateField_management(inTable, fieldName, expression, "PYTHON_9.3", codeblock)
     print '... calculating field'
