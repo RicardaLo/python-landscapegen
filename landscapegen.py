@@ -179,13 +179,13 @@ try:
     rasTemp.save(outPath + "Paths")
 
 # Stack
-  BaseMap = Raster(outPath + BaseMap)
-  Buildings = Raster(outPath + Buildings)
-  Pylons = Raster(outPath + Pylon150)
+  # BaseMap = Raster(outPath + BaseMap)
+  # Buildings = Raster(outPath + Buildings)
+  # Pylons = Raster(outPath + Pylon150)
 
-  step1 = Con(Buildings == 1, BaseMap, Buildings)
-  step2 = Con(Pylons == 1, step1, Pylons)
-  step3 = Con(Paths == 1, step2, Paths)
+  # step1 = Con(Buildings == 1, BaseMap, Buildings)
+  # step2 = Con(Pylons == 1, step1, Pylons)
+  # step3 = Con(Paths == 1, step2, Paths)
 
 
 
