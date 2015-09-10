@@ -128,7 +128,7 @@ try:
     arcpy.Merge_management(['T32_1702bygning_flate', 'T32_1719bygning_flate', 'T32_1721bygning_flate',
     'T32_1756bygning_flate'], outPath + 'BygningFlate_merge')
     print 'checking geometry'
-    arcpy.CheckGeometry_management(["BygningFlate_merge"], "CG_Result")
+    arcpy.CheckGeometry_management(outPath + "BygningFlate_merge", outPath + "CG_Result")
     # Table that was produced by Check Geometry tool
     table = outPath + 'CG_Result'
     # Create local variables
