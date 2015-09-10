@@ -37,7 +37,7 @@ default = 0  # 1 -> run process; 0 -> not run process
 #CONVERSION  - features to raster layers
 BaseMap = 1
 Buildings250_c = default
-Pylon150_c = 1
+Pylon150_c = default
 Paths_c = default
 Railway_c = default
 print " "
@@ -50,10 +50,11 @@ try:
   if BaseMap == 1:
     print "Processing BaseMap ..."
     if arcpy.Exists(outPath + "BaseMap"):
-      arcpy.Delete_management(outPath + "BaseMap")
       print "... deleting existing raster"
+      arcpy.Delete_management(outPath + "BaseMap")
 
       # Merge the municipalities into a single feature layer
+    print '... merging'
     arcpy.Merge_management(['T32_1702ar5_flate', 'T32_1719ar5_flate', 'T32_1721ar5_flate',
     'T32_1756ar5_flate'], outPath + 'AR_merge')
     # Set local variables
@@ -73,12 +74,12 @@ try:
            retval += s
        return int(retval)"""
     # Add field to populate with the concatenated ARTYPE, ARTRESLAG, ARSKOGBON 
-    arcpy.AddField_management(inTable, fieldName, "LONG", "", "", 6)
     print '... adding field'
-    arcpy.CalculateField_management(inTable, fieldName, expression, "PYTHON_9.3", codeblock)
+    arcpy.AddField_management(inTable, fieldName, "LONG", "", "", 6)
     print '... calculating field'
-    arcpy.PolygonToRaster_conversion(outPath + "AR_merge", "COMBI", outPath + "BaseMap", "CELL_CENTER", "NONE", "1")
+    arcpy.CalculateField_management(inTable, fieldName, expression, "PYTHON_9.3", codeblock)
     print '... converting features to raster'
+    arcpy.PolygonToRaster_conversion(outPath + "AR_merge", "COMBI", outPath + "BaseMap", "CELL_CENTER", "NONE", "1")
   
 # Pylons 
   if Pylon150_c == 1:
