@@ -35,8 +35,8 @@ print "... model settings read"
 default = 0  # 1 -> run process; 0 -> not run process
 
 #CONVERSION  - features to raster layers
-BaseMap = 1
-Buildings250_c = default
+BaseMap = default
+Buildings250_c = 1
 Pylon150_c = default
 Paths_c = default
 Railway_c = default
@@ -83,12 +83,11 @@ try:
     inRaster = outPath + "BaseMap"
     reclassField = "Value"
     remap = RemapValue([[119898, 10],
-      [129898, 121],
       [219898, 20],[229898, 20],
-      [233198, 26], [233298, 26], [233398, 26],
-      [233998, 26], [239998, 26], [303111, 50], [303112, 50], [303113, 50], [303114, 50],
-      [303211, 40], [303212, 40], [303213, 40], [303214, 40],
-      [603211, 40], [603213, 40], [603214, 40], [603311, 40], [603312, 40], [603313, 40], [603314, 40],
+      [233198, 26], [233298, 26], [233398, 26], [233998, 26], [239998, 26],
+      [303211, 40], [303212, 40], [303213, 40], [303214, 40], [603211, 40],
+      [603213, 40], [603214, 40], [603311, 40], [603312, 40], [603313, 40], [603314, 40],
+      [303111, 50], [303112, 50], [303113, 50], [303114, 50],
       [603111, 50], [603112, 50], [603113, 50], [603114, 50],
       [303311, 60], [303312, 60], [303313, 60], [303314, 60],
       [603911, 95],
@@ -97,9 +96,14 @@ try:
       [503914, 69],
       [819898, 90],
       [829898, 80],
+      [129898, 121],
       [213998, 2300],
       [999898, 2430]])
-  
+    print '... reclassifying BaseMap'
+    outReclassify = Reclassify(inRaster, reclassField, remap, "NODATA")
+    arcpy.Delete_management(outPath + "BaseMap")
+    outReclassify.save(outPath + "BaseMap")
+
 # Pylons 
   if Pylon150_c == 1:
     print "Processing pylons ..."
@@ -108,7 +112,7 @@ try:
       print "... deleting existing raster"
     arcpy.Merge_management(['T32_1702ledning_punkt', 'T32_1719ledning_punkt', 'T32_1721ledning_punkt',
     'T32_1756ledning_punkt'], outPath + 'LedningPunkt_merge')
-    print '... merging'
+    print '... merging pylon layers'
     eucDistTemp = EucDistance(outPath + "LedningPunkt_merge", "", "1", "")
     print 'calculating euclidian distance'
     rasTemp = Con(eucDistTemp < 1.5, 150, 1)
@@ -118,9 +122,13 @@ try:
   if Buildings250_c == 1:
     print "Processing buildings ..."
     if arcpy.Exists(outPath + "Buildings"):
-      arcpy.Delete_management(outPath + "Buildings")
       print "... deleting existing raster"
-    arcpy.PolygonToRaster_conversion("T32_1702bygning_flate", "OBJTYPE", outPath + "tmpRaster", "CELL_CENTER", "NONE", "1")
+      arcpy.Delete_management(outPath + "Buildings")
+    print '... merging building layers'
+    arcpy.Merge_management(['T32_1702bygning_flate', 'T32_1719bygning_flate', 'T32_1721bygning_flate',
+    'T32_1756bygning_flate'], outPath + 'BygningFlate_merge')
+    print 'converting buildings to raster'
+    arcpy.PolygonToRaster_conversion(outPath + "BygningFlate_merge", "OBJTYPE", outPath + "tmpRaster", "CELL_CENTER", "NONE", "1")
     rasIsNull = IsNull(outPath + "tmpRaster")
     rasTemp = Con(rasIsNull == 1, 1, 250)
     rasTemp.save(outPath + "Buildings")
@@ -132,9 +140,22 @@ try:
     if arcpy.Exists(outPath + "Paths"):
       arcpy.Delete_management(outPath + "Paths")
       print "... deleting existing raster"
-    eucDistTemp = EucDistance("T32_1702traktorvegsti_linje", "", "1", "")
-    rasTemp = Con(eucDistTemp < 1.51, 175, 1)
+    print '... merging path layers'
+    arcpy.Merge_management(['T32_1702traktorvegsti_linje', 'T32_1719traktorvegsti_linje', 'T32_1721traktorvegsti_linje',
+    'T32_1756traktorvegsti_linje'], outPath + 'TraktorvegSti_merge')
+    eucDistTemp = EucDistance(outPath + 'TraktorvegSti_merge', "", "1", "")
+    rasTemp = Con(eucDistTemp < 1.51, 123, 1)
     rasTemp.save(outPath + "Paths")
+
+# Stack
+  BaseMap = Raster(outPath + BaseMap)
+  Buildings = Raster(outPath + Buildings)
+  Pylons = Raster(outPath + Pylon150)
+
+  step1 = Con(Buildings == 1, BaseMap, Buildings)
+  step2 = Con(Pylons == 1, step1, Pylons)
+  step3 = Con(Paths == 1, step2, Paths)
+
 
 
   endTime = time.strftime('%X %x')
