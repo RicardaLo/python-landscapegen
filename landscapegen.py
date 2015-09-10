@@ -34,13 +34,10 @@ print "... model settings read"
 
 default = 0  # 1 -> run process; 0 -> not run process
 
-#MOSAIC
-# vejnet_c = default      #create road theme
-
 #CONVERSION  - features to raster layers
 BaseMap = 1
 Buildings250_c = default
-Pylon150_c = default
+Pylon150_c = 1
 Paths_c = default
 Railway_c = default
 print " "
@@ -48,8 +45,6 @@ print " "
 #####################################################################################################
 
 try:
-
-    
 # 1) CONVERSION - from feature layers to raster
 
   if BaseMap == 1:
@@ -83,7 +78,9 @@ try:
       print "... deleting existing raster"
     arcpy.Merge_management(['T32_1702ledning_punkt', 'T32_1719ledning_punkt', 'T32_1721ledning_punkt',
     'T32_1756ledning_punkt'], outPath + 'LedningPunkt_merge')
-    eucDistTemp = EucDistance("LedningPunkt_merge", "", "1", "")
+    print '... merging'
+    eucDistTemp = EucDistance(outPath + "LedningPunkt_merge", "", "1", "")
+    print 'calculating euclidian distance'
     rasTemp = Con(eucDistTemp < 1.5, 150, 1)
     rasTemp.save(outPath + "Pylon150")
 
