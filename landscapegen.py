@@ -31,7 +31,7 @@ print "... model settings read"
 
 # Model execution - controls which processes are executed
 
-default = 0  # 1 -> run process; 0 -> not run process
+default = 0  # 1 -> run process; 0 -> not run proce_css
 
 # Conversion  - features to raster layers
 BaseMap = default
@@ -39,6 +39,9 @@ Buildings_c = default
 Pylons_c = default
 Paths_c = default
 Railway_c = default
+CompleteMap_c = default  # Requires all the above layers
+Regionalize_c = default  # Requires the CompleteMap
+ConvertAscii_c = default  # Requires the RegionalizedMap
 print " "
 
 #####################################################################################################
@@ -189,34 +192,38 @@ try:
     rasTemp.save(outPath + "Railways")
 
 # Stack
-  print '... loading individual rasters'
-  BaseMap = Raster(outPath + 'BaseMap')
-  Buildings = Raster(outPath + 'Buildings')
-  Pylons = Raster(outPath + 'Pylons')
-  Railways = Raster(outPath + 'Railways')
-  Paths = Raster(outPath + 'Paths')
-  print '... stacking'
-  step1 = Con(Buildings == 1, BaseMap, Buildings)
-  print 'Buildings added to BaseMap'
-  step2 = Con(Pylons == 1, step1, Pylons)
-  print 'Pylons added to BaseMap'
-  step3 = Con(Paths == 1, step2, Paths)
-  print 'Pylons added to BaseMap'
-  step4 = Con(Railways == 1, step3, Railways)
-  print 'stacking done - saving map'
-  step4.save(outPath + 'CompleteMap')
+  if CompleteMap == 1:
+    print '... loading individual rasters'
+    BaseMap = Raster(outPath + 'BaseMap')
+    Buildings = Raster(outPath + 'Buildings')
+    Pylons = Raster(outPath + 'Pylons')
+    Railways = Raster(outPath + 'Railways')
+    Paths = Raster(outPath + 'Paths')
+    print '... stacking'
+    step1 = Con(Buildings == 1, BaseMap, Buildings)
+    print 'Buildings added to BaseMap'
+    step2 = Con(Pylons == 1, step1, Pylons)
+    print 'Pylons added to BaseMap'
+    step3 = Con(Paths == 1, step2, Paths)
+    print 'Pylons added to BaseMap'
+    step4 = Con(Railways == 1, step3, Railways)
+    print 'stacking done - saving map'
+    step4.save(outPath + 'CompleteMap')
 
 # Regionalise map
-  print 'Regionalizing'
-  RegionalizedMap = RegionGroup(step4,"EIGHT","WITHIN","ADD_LINK","")
-  RegionalizedMap.save(outPath + "FinalMap")
-  nowTime = time.strftime('%X %x')
-  print "Regionalization done ..." + nowTime
+  if Regionalize_c == 1:
+    print 'Regionalizing'
+    RegionalizedMap = RegionGroup(step4,"EIGHT","WITHIN","ADD_LINK","")
+    RegionalizedMap.save(outPath + "FinalMap")
+    nowTime = time.strftime('%X %x')
+    print "Regionalization done ..." + nowTime
 
 # convert regionalised map to ascii
-  print 'Converting to ASCII'
-  arcpy.RasterToASCII_conversion(RegionalizedMap, asciiexp)
-  print "Conversion to ASCII done ..." + nowTime
+  if ConvertAscii_c == 1:
+    print 'Converting to ASCII'
+    arcpy.RasterToASCII_conversion(RegionalizedMap, asciiexp)
+    nowTime = time.strftime('%X %x')
+    print "Conversion to ASCII done ..." + nowTime
 
   endTime = time.strftime('%X %x')
   print ""
