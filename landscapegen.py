@@ -32,7 +32,7 @@ print "... model settings read"
 
 # MODEL EXECUTION - controls which processes are executed
 
-default = 1  # 1 -> run process; 0 -> not run process
+default = 0  # 1 -> run process; 0 -> not run process
 
 #CONVERSION  - features to raster layers
 BaseMap = default
@@ -194,6 +194,7 @@ try:
   Buildings = Raster(outPath + 'Buildings')
   Pylons = Raster(outPath + 'Pylons')
   Railways = Raster(outPath + 'Railways')
+  Paths = Raster(outPath + 'Paths')
 
   step1 = Con(Buildings == 1, BaseMap, Buildings)
   step2 = Con(Pylons == 1, step1, Pylons)
