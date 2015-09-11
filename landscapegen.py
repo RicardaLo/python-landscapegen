@@ -1,9 +1,9 @@
 # =======================================================================================================================
 # Name: Landscape generator  -  landscapegen
-# Purpose: The script convert feature layers to rasters and assemble a surface covering land-use map
-# Authors: Flemming Skov & Lars Dalby - September 2015
+# Purpose: Convert feature layers to rasters and assemble a surface covering land-use map
+# Author: Lars Dalby - September 2015
 
-# IMPORT SYSTEM MODULES
+# Import system modules
 import arcpy, traceback, sys, time, gc, os
 from arcpy import env
 from arcpy.sa import *
@@ -18,10 +18,9 @@ outPath = "c:/Users/lada/Landskabsgenerering/Norge/norway.gdb/"                 
 localSettings = "c:/Users/lada/Landskabsgenerering/Norge/project.gdb/NorwayOutlineRaster"   # project folder with mask
 gisDB = "c:/Users/lada/Landskabsgenerering/Norge/norwaygis.gdb"                    # input features
 scratchDB = "c:/Users/lada/Landskabsgenerering/Norge/scratch"                      # scratch folder for tempfiles
-# asciiexp = "c:/Users/lada/Landskabsgenerering/Norge/ASCII_haslev.txt"              # export in ascii (for ALMaSS)
-# reclasstable = "c:/Users/lada/Landskabsgenerering/Norge/reclass.txt"               # reclass ascii table
+asciiexp = "c:/Users/lada/Landskabsgenerering/Norge/ASCII_Norway.txt"              # export in ascii (for ALMaSS)
 
-# MODEL SETTINGS
+# Model settings
 arcpy.env.overwriteOutput = True
 arcpy.env.workspace = gisDB
 arcpy.env.scratchWorkspace = scratchDB
@@ -30,11 +29,11 @@ arcpy.env.mask = localSettings
 arcpy.env.cellSize = localSettings
 print "... model settings read"
 
-# MODEL EXECUTION - controls which processes are executed
+# Model execution - controls which processes are executed
 
 default = 0  # 1 -> run process; 0 -> not run process
 
-#CONVERSION  - features to raster layers
+# Conversion  - features to raster layers
 BaseMap = default
 Buildings_c = default
 Pylons_c = default
@@ -204,8 +203,20 @@ try:
   step3 = Con(Paths == 1, step2, Paths)
   print 'Pylons added to BaseMap'
   step4 = Con(Railways == 1, step3, Railways)
-  print 'stacking done - saving result'
-  step4.save(outPath + 'Final')
+  print 'stacking done - saving map'
+  step4.save(outPath + 'CompleteMap')
+
+# Regionalise map
+  print 'Regionalizing'
+  RegionalizedMap = RegionGroup(step4,"EIGHT","WITHIN","ADD_LINK","")
+  RegionalizedMap.save(outPath + "FinalMap")
+  nowTime = time.strftime('%X %x')
+  print "Regionalization done ..." + nowTime
+
+# convert regionalised map to ascii
+  print 'Converting to ASCII'
+  arcpy.RasterToASCII_conversion(RegionalizedMap, asciiexp)
+  print "Conversion to ASCII done ..." + nowTime
 
   endTime = time.strftime('%X %x')
   print ""
