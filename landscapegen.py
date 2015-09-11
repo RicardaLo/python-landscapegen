@@ -190,17 +190,21 @@ try:
     rasTemp.save(outPath + "Railways")
 
 # Stack
+  print '... loading individual rasters'
   BaseMap = Raster(outPath + 'BaseMap')
   Buildings = Raster(outPath + 'Buildings')
   Pylons = Raster(outPath + 'Pylons')
   Railways = Raster(outPath + 'Railways')
   Paths = Raster(outPath + 'Paths')
-
+  print '... stacking'
   step1 = Con(Buildings == 1, BaseMap, Buildings)
+  print 'Buildings added to BaseMap'
   step2 = Con(Pylons == 1, step1, Pylons)
+  print 'Pylons added to BaseMap'
   step3 = Con(Paths == 1, step2, Paths)
+  print 'Pylons added to BaseMap'
   step4 = Con(Railways == 1, step3, Railways)
-
+  print 'stacking done - saving result'
   step4.save(outPath + 'Final')
 
   endTime = time.strftime('%X %x')
