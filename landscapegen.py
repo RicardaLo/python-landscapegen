@@ -40,8 +40,8 @@ Pylons_c = default
 Paths_c = default
 Railway_c = default
 CompleteMap_c = default  # Requires all the above layers
-Regionalize_c = default  # Requires the CompleteMap
-ConvertAscii_c = default  # Requires the RegionalizedMap
+Regionalize_c = 1  # Requires the CompleteMap
+ConvertAscii_c = 1  # Requires the RegionalizedMap
 print " "
 
 #####################################################################################################
@@ -192,7 +192,7 @@ try:
     rasTemp.save(outPath + "Railways")
 
 # Stack
-  if CompleteMap == 1:
+  if CompleteMap_c == 1:
     print '... loading individual rasters'
     BaseMap = Raster(outPath + 'BaseMap')
     Buildings = Raster(outPath + 'Buildings')
@@ -212,18 +212,18 @@ try:
 
 # Regionalise map
   if Regionalize_c == 1:
-    print 'Regionalizing'
+    print 'Regionalizing...'
     RegionalizedMap = RegionGroup(step4,"EIGHT","WITHIN","ADD_LINK","")
     RegionalizedMap.save(outPath + "FinalMap")
     nowTime = time.strftime('%X %x')
-    print "Regionalization done ..." + nowTime
+    print "Regionalization done... " + nowTime
 
 # convert regionalised map to ascii
   if ConvertAscii_c == 1:
-    print 'Converting to ASCII'
+    print 'Converting to ASCII...'
     arcpy.RasterToASCII_conversion(RegionalizedMap, asciiexp)
     nowTime = time.strftime('%X %x')
-    print "Conversion to ASCII done ..." + nowTime
+    print "Conversion to ASCII done... " + nowTime
 
   endTime = time.strftime('%X %x')
   print ""
