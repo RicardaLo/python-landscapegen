@@ -2,6 +2,8 @@
 # Name: Landscape generator  -  landscapegen
 # Purpose: Convert feature layers to rasters and assemble a surface covering land-use map
 # Author: Lars Dalby - September 2015
+# The script is a modified version of the original landscape generator script
+# developed by Skov & Dalby. See http://www.biorxiv.org/content/early/2015/08/31/025833
 
 # Import system modules
 import arcpy, traceback, sys, time, gc, os
@@ -13,8 +15,10 @@ gc.enable
 print "Model landscape generator started: " + nowTime
 print "... system modules checked"
 
-# DATA - paths to data, output gdb, scratch folder and model landscape mask
-outPath = "c:/Users/lada/Landskabsgenerering/Norge/norway.gdb/"                    # saves maps here
+# Data - paths to data, output gdb, scratch folder and model landscape mask
+# All data have prior to running the script been imported into a file geodatabase
+# with the desired resolution.
+outPath = "c:/Users/lada/Landskabsgenerering/Norge/norway.gdb/"                    # Maps are stored here
 localSettings = "c:/Users/lada/Landskabsgenerering/Norge/project.gdb/NorwayOutlineRaster"   # project folder with mask
 gisDB = "c:/Users/lada/Landskabsgenerering/Norge/norwaygis.gdb"                    # input features
 scratchDB = "c:/Users/lada/Landskabsgenerering/Norge/scratch"                      # scratch folder for tempfiles
