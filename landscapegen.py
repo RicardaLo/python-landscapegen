@@ -44,8 +44,8 @@ Pylons_c = default
 Paths_c = default
 Railway_c = default
 CompleteMap_c = default  # Requires all the above layers
-Regionalize_c = 1  # Requires the CompleteMap
-ConvertAscii_c = 1  # Requires the RegionalizedMap
+Regionalize_c = default  # Requires the CompleteMap
+ConvertAscii_c = default  # Requires the RegionalizedMap
 print " "
 
 #####################################################################################################
@@ -60,7 +60,7 @@ try:
       # Merge the municipalities into a single feature layer
     print '... merging'
     arcpy.Merge_management(['T32_1702ar5_flate', 'T32_1719ar5_flate', 'T32_1721ar5_flate',
-    'T32_1756ar5_flate'], outPath + 'AR_merge')
+    'T32_1756ar5_flate', 'T32_1724ar5_flate', 'T32_1725ar5_flate'], outPath + 'AR_merge')
     # Set local variables
     inTable = outPath + "AR_merge"
     fieldName = "COMBI"
@@ -94,12 +94,12 @@ try:
       [303111, 50], [303112, 50], [303113, 50], [303114, 50],
       [603111, 50], [603112, 50], [603113, 50], [603114, 50],
       [303311, 60], [303312, 60], [303313, 60], [303314, 60],
-      [603911, 95],
       [503911, 69],
       [503913, 69],
       [503914, 69],
-      [819898, 90],
       [829898, 80],
+      [819898, 90],
+      [603911, 95],
       [129898, 121],
       [213998, 2300],
       [999898, 2430]])
@@ -115,7 +115,7 @@ try:
       arcpy.Delete_management(outPath + "Pylons")
       print "... deleting existing raster"
     arcpy.Merge_management(['T32_1702ledning_punkt', 'T32_1719ledning_punkt', 'T32_1721ledning_punkt',
-    'T32_1756ledning_punkt'], outPath + 'LedningPunkt_merge')
+    'T32_1756ledning_punkt', 'T32_1724ledning_punkt','T32_1725ledning_punkt'], outPath + 'LedningPunkt_merge')
     print '... merging pylon layers'
     eucDistTemp = EucDistance(outPath + "LedningPunkt_merge", "", "1", "")
     print 'calculating euclidian distance'
@@ -130,7 +130,7 @@ try:
       arcpy.Delete_management(outPath + "Buildings")
     print '... merging building layers'
     arcpy.Merge_management(['T32_1702bygning_flate', 'T32_1719bygning_flate', 'T32_1721bygning_flate',
-    'T32_1756bygning_flate'], outPath + 'BygningFlate_merge')
+    'T32_1756bygning_flate', 'T32_1724bygning_flate', 'T32_1725bygning_flate'], outPath + 'BygningFlate_merge')
     print 'checking geometry'
     arcpy.CheckGeometry_management(outPath + "BygningFlate_merge", outPath + "CG_Result")
     # Table that was produced by Check Geometry tool
@@ -177,7 +177,7 @@ try:
       arcpy.Delete_management(outPath + "Paths")
     print '... merging path layers'
     arcpy.Merge_management(['T32_1702traktorvegsti_linje', 'T32_1719traktorvegsti_linje', 'T32_1721traktorvegsti_linje',
-    'T32_1756traktorvegsti_linje'], outPath + 'TraktorvegSti_merge')
+    'T32_1756traktorvegsti_linje', 'T32_1724traktorvegsti_linje', 'T32_1725traktorvegsti_linje'], outPath + 'TraktorvegSti_merge')
     eucDistTemp = EucDistance(outPath + 'TraktorvegSti_merge', "", "1", "")
     rasTemp = Con(eucDistTemp < 1.51, 123, 1)
     rasTemp.save(outPath + "Paths")
@@ -190,7 +190,7 @@ try:
       arcpy.Delete_management(outPath + "Railway")
     print '... merging railway layers'
     arcpy.Merge_management(['T32_1702bane_linje', 'T32_1719bane_linje', 'T32_1721bane_linje',
-    'T32_1756bane_linje'], outPath + 'Banelinje_merge')
+    'T32_1756bane_linje', 'T32_1724bane_linje', 'T32_1725bane_linje'], outPath + 'Banelinje_merge')
     eucDistTemp = EucDistance(outPath + 'Banelinje_merge', "", "1", "")
     rasTemp = Con(eucDistTemp < 4.5, 118, 1)
     rasTemp.save(outPath + "Railways")
