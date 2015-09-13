@@ -11,7 +11,7 @@ from arcpy import env
 from arcpy.sa import *
 arcpy.CheckOutExtension("Spatial")
 nowTime = time.strftime('%X %x')
-gc.enable
+arcpy.env.parallelProcessingFactor = "75%"
 print "Model landscape generator started: " + nowTime
 print "... system modules checked"
 
@@ -101,8 +101,9 @@ try:
       [819898, 90],
       [603911, 95],
       [129898, 121],
-      [213998, 2300],
-      [999898, 2430]])
+      [213998, 69],
+      [999898, 69]])  # Missing data currently mapped to bare rock as it is outside
+                      # the area of interest for the goose modelling.
     print '... reclassifying BaseMap'
     outReclassify = Reclassify(inRaster, reclassField, remap, "NODATA")
     arcpy.Delete_management(outPath + "BaseMap")
