@@ -24,5 +24,8 @@ dst = "c:/Users/lada/Desktop/NewSet/"
 
 # Copy the template directory
 for index in range(len(landscapes)):
-   shutil.copytree(template, os.path.join(dst,landscapes[index]))
-                    
+	dstpath = os.path.join(dst, landscapes[index])
+	shutil.copytree(template, dstpath)
+	gdbpath = os.path.join(dstpath, "KvadratX.gdb")
+	newgdbpath = os.path.join(dstpath, landscapes[index])
+	os.rename(gdbpath, newgdbpath)                    
