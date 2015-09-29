@@ -14,6 +14,7 @@ NS = ['NS1', 'NS2', 'NS3', 'NS4']
 SS = ['SS1', 'SS2', 'SS3', 'SS4', 'SS5', 'SS6']
 
 landscapes = NJ + VJ + OJ + FU + NS + SS
+landscapes.append("BO1")
 
 # Path to the template directory:
 template = "c:/Users/lada/Desktop/Skabelon/"
