@@ -32,9 +32,12 @@ for index in range(len(landscapes)):
 
 # Data - paths to data, output gdb, scratch folder and simulation landscape mask
 outPath = os.path.join(dst,landscapes[index] + ".gdb")
-localSettings = "O:/ST_LandskabsGenerering/outputs/kvadrater/haslev/project.gdb/haslevmask"   # project folder with mask
 gisDB = "O:/ST_LandskabsGenerering/gis/dkgis.gdb"                                             # input features
 scratchDB = os.path.join(dst,landscapes[index], "scratch")                      # scratch folder for tempfiles
 asciifile = "ASCII_" + landscapes[index] + ".txt"
 asciiexp = os.path.join(dst,landscapes[index], asciifile)              # export in ascii (for ALMaSS)
 reclasstable = os.path.join(dst, landscapes[index], "reclass.txt")               # re
+# Select the landscape and convert to raster
+mask = os.path.join(dst, landscapes[index] + "/project.gdb/mask")
+arcpy.PolygonToRaster_conversion("shapefilename", landscapes[index], mask, "CELL_CENTER", "NONE", "1")
+localSettings = os.path.join(dst, landscapes[index], "project.gdb/mask"   # project folder with mask
