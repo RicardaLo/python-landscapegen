@@ -7,13 +7,13 @@ import shutil, os
 
 # Names of the new landscapes
 NJ = ['NJ1', 'NJ2', 'NJ3', 'NJ4', 'NJ5', 'NJ6']
-VJ = ['NJ1', 'NJ2', 'NJ3', 'NJ4', 'NJ5']
+VJ = ['VJ1', 'VJ2', 'VJ3', 'VJ4', 'VJ5']
 OJ = ['OJ1', 'OJ2', 'OJ3', 'OJ4']
 FU = ['FU1', 'FU2', 'FU3', 'FU4']
 NS = ['NS1', 'NS2', 'NS3', 'NS4']
 SS = ['SS1', 'SS2', 'SS3', 'SS4', 'SS5', 'SS6']
-BO = 'BO'
-landscapes = NJ + VJ + OJ + FU + NS + SS + BO
+
+landscapes = NJ + VJ + OJ + FU + NS + SS
 
 # Path to the template directory:
 template = "c:/Users/lada/Desktop/Skabelon/"
