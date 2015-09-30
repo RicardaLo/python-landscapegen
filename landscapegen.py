@@ -26,8 +26,8 @@ SS = ['SS1', 'SS2', 'SS3', 'SS4', 'SS5', 'SS6']
 landscapes = NJ + VJ + OJ + FU + NS + SS
 landscapes.append("BO1")  # Different approach is need to apapend only 1 string
 
-# Temporary test with Bornholm:
-landscapes = "BO1"
+# Temporary test with Ostjylland:
+landscapes = OJ[0:2]
 
 # Path to the template directory:
 template = "o:/ST_LandskabsGenerering/gis/skabelon/" 
@@ -44,23 +44,44 @@ for index in range(len(landscapes)):
   os.rename(gdbpath, newgdbpath + ".gdb")                    
 
   # Data - paths to data, output gdb, scratch folder and simulation landscape mask
-  outPath = os.path.join(dst, landscapes[index] + ".gdb")
-  gisDB = "O:/ST_LandskabsGenerering/gis/dkgis.gdb"                                             # input features
-  scratchDB = os.path.join(dst, landscapes[index], "scratch")                      # scratch folder for tempfiles
+  outPath = os.path.join(dst, landscapes[index] + ".gdb/")
+  gisDB = "c:/Users/lada/Desktop/dkgis.gdb"                                                 # input features
+  scratchDB = os.path.join(dstpatht, landscapes[index], "scratch")             # scratch folder for tempfiles
   asciifile = "ASCII_" + landscapes[index] + ".txt"
   asciiexp = os.path.join(dst, landscapes[index], asciifile)              # export in ascii (for ALMaSS)
-  reclasstable = os.path.join(dst, landscapes[index], "reclass.txt")               # re
+  reclasstable = os.path.join(dst, landscapes[index], "reclass.txt")      # reclassification for almass
   # Select the landscape and convert to raster
   # Set local variables
   in_features = "o:/ST_LandskabsGenerering/harelav/gis/harelav.gdb/kvadrater"
   out_feature = os.path.join(dst, landscapes[index] + "/project.gdb/polymask") 
-  where_clause = '"NAME" = landscapes[index]'
+  # Define function to construct WHERE clause:
+  def buildWhereClause(table, field, value):
+    """Constructs a SQL WHERE clause to select rows having the specified value
+    within a given field and table."""
+
+    # Add DBMS-specific field delimiters
+    fieldDelimited = arcpy.AddFieldDelimiters(table, field)
+
+    # Determine field type
+    fieldType = arcpy.ListFields(table, field)[0].type
+
+    # Add single-quotes for string field values
+    if str(fieldType) == 'String':
+        value = "'%s'" % value
+
+    # Format WHERE clause
+    whereClause = "%s = %s" % (fieldDelimited, value)
+    return whereClause
+  
+  fieldname = "NAME"
+  fieldvalue = landscapes[index]
+  where_clause = buildWhereClause(in_features, fieldname, fieldvalue)
   
   # Execute Select
   arcpy.Select_analysis(in_features, out_feature, where_clause)
   
   mask = os.path.join(dst, landscapes[index] + "/project.gdb/mask")
-  arcpy.PolygonToRaster_conversion("polymask", "OBJECTID", mask, "CELL_CENTER", "NONE", "1")
+  arcpy.PolygonToRaster_conversion(out_feature, "OBJECTID", mask, "CELL_CENTER", "NONE", "1")
   localSettings = mask   # project folder with mask
 
   # Model settings
@@ -823,17 +844,17 @@ for index in range(len(landscapes)):
 
 
 
-except:
-    tb = sys.exc_info()[2]
-    tbinfo = traceback.format_tb(tb)[0]
-    pymsg = "PYTHON ERRORS:\nTraceback Info:\n" + tbinfo + "\nError Info:\n     " +        str(sys.exc_type) + ": " + str(sys.exc_value) + "\n"
-    msgs = "ARCPY ERRORS:\n" + arcpy.GetMessages(2) + "\n"
-
-    arcpy.AddError(msgs)
-    arcpy.AddError(pymsg)
-
-    print msgs
-    print pymsg
-
-    arcpy.AddMessage(arcpy.GetMessages(1))
-    print arcpy.GetMessages(1)
+  except:
+      tb = sys.exc_info()[2]
+      tbinfo = traceback.format_tb(tb)[0]
+      pymsg = "PYTHON ERRORS:\nTraceback Info:\n" + tbinfo + "\nError Info:\n     " +        str(sys.exc_type) + ": " + str(sys.exc_value) + "\n"
+      msgs = "ARCPY ERRORS:\n" + arcpy.GetMessages(2) + "\n"
+  
+      arcpy.AddError(msgs)
+      arcpy.AddError(pymsg)
+  
+      print msgs
+      print pymsg
+  
+      arcpy.AddMessage(arcpy.GetMessages(1))
+      print arcpy.GetMessages(1)
