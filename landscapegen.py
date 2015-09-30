@@ -24,10 +24,13 @@ NS = ['NS1', 'NS2', 'NS3', 'NS4']
 SS = ['SS1', 'SS2', 'SS3', 'SS4', 'SS5', 'SS6']
 
 landscapes = NJ + VJ + OJ + FU + NS + SS
-landscapes.append("BO1")
+landscapes.append("BO1")  # Different approach is need to apapend only 1 string
+
+# Temporary test with Bornholm:
+landscapes = "BO1"
 
 # Path to the template directory:
-template = "c:/Users/lada/Desktop/Skabelon/"
+template = "o:/ST_LandskabsGenerering/gis/skabelon/" 
 
 # Path to the destination
 dst = "c:/Users/lada/Desktop/NewSet/"
@@ -39,18 +42,26 @@ for index in range(len(landscapes)):
   gdbpath = os.path.join(dstpath, "KvadratX.gdb")
   newgdbpath = os.path.join(dstpath, landscapes[index])
   os.rename(gdbpath, newgdbpath + ".gdb")                    
- 
+
   # Data - paths to data, output gdb, scratch folder and simulation landscape mask
-  outPath = os.path.join(dst,landscapes[index] + ".gdb")
+  outPath = os.path.join(dst, landscapes[index] + ".gdb")
   gisDB = "O:/ST_LandskabsGenerering/gis/dkgis.gdb"                                             # input features
-  scratchDB = os.path.join(dst,landscapes[index], "scratch")                      # scratch folder for tempfiles
+  scratchDB = os.path.join(dst, landscapes[index], "scratch")                      # scratch folder for tempfiles
   asciifile = "ASCII_" + landscapes[index] + ".txt"
-  asciiexp = os.path.join(dst,landscapes[index], asciifile)              # export in ascii (for ALMaSS)
+  asciiexp = os.path.join(dst, landscapes[index], asciifile)              # export in ascii (for ALMaSS)
   reclasstable = os.path.join(dst, landscapes[index], "reclass.txt")               # re
   # Select the landscape and convert to raster
+  # Set local variables
+  in_features = "o:/ST_LandskabsGenerering/harelav/gis/harelav.gdb/kvadrater"
+  out_feature = os.path.join(dst, landscapes[index] + "/project.gdb/polymask") 
+  where_clause = '"NAME" = landscapes[index]'
+  
+  # Execute Select
+  arcpy.Select_analysis(in_features, out_feature, where_clause)
+  
   mask = os.path.join(dst, landscapes[index] + "/project.gdb/mask")
-  arcpy.PolygonToRaster_conversion("shapefilename", landscapes[index], mask, "CELL_CENTER", "NONE", "1")
-  localSettings = os.path.join(dst, landscapes[index], "project.gdb/mask")   # project folder with mask
+  arcpy.PolygonToRaster_conversion("polymask", "OBJECTID", mask, "CELL_CENTER", "NONE", "1")
+  localSettings = mask   # project folder with mask
 
   # Model settings
   arcpy.env.overwriteOutput = True
@@ -62,7 +73,7 @@ for index in range(len(landscapes)):
   print "... model settings read"
   
   # Model execution - controls which processes to run:
-  default = 1  # 1 -> run process; 0 -> do not run process
+  default = 0  # 1 -> run process; 0 -> do not run process
   
   # Mosaic
   road = default      #create road theme
@@ -74,7 +85,7 @@ for index in range(len(landscapes)):
   finalmap = default      #assemble final map
   
   # Conversion  - features to raster layers
-  landsea = default   #land_sea
+  landsea = 1   #land_sea
   slopes_105 = default   #slopes along roads
   roadsideverge_110 = default   #road verges
   paths_112 = default   #paths
