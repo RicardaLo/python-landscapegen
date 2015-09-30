@@ -44,9 +44,9 @@ for index in range(len(landscapes)):
   os.rename(gdbpath, newgdbpath + ".gdb")                    
 
   # Data - paths to data, output gdb, scratch folder and simulation landscape mask
-  outPath = os.path.join(dst, landscapes[index] + ".gdb/")
-  gisDB = "c:/Users/lada/Desktop/dkgis.gdb"                                                 # input features
-  scratchDB = os.path.join(dstpatht, landscapes[index], "scratch")             # scratch folder for tempfiles
+  outPath = os.path.join(dst, landscapes[index], landscapes[index] + ".gdb/")
+  gisDB = "c:/Users/lada/Desktop/dkgis.gdb"                               # input features
+  scratchDB = os.path.join(dst, landscapes[index], "scratch")             # scratch folder for tempfiles
   asciifile = "ASCII_" + landscapes[index] + ".txt"
   asciiexp = os.path.join(dst, landscapes[index], asciifile)              # export in ascii (for ALMaSS)
   reclasstable = os.path.join(dst, landscapes[index], "reclass.txt")      # reclassification for almass
