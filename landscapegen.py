@@ -27,13 +27,13 @@ landscapes = NJ + VJ + OJ + FU + NS + SS
 landscapes.append("BO1")  # Different approach is need to apapend only 1 string
 
 # Temporary test with Ostjylland:
-landscapes = OJ[0:2]
+landscapes = OJ
 
 # Path to the template directory:
 template = "o:/ST_LandskabsGenerering/gis/skabelon/" 
 
 # Path to the destination
-dst = "c:/Users/lada/Desktop/NewSet/"
+dst = "e:/Gis/HareValidation/"
 
 # Copy the template directory
 for index in range(len(landscapes)):
@@ -45,7 +45,7 @@ for index in range(len(landscapes)):
 
   # Data - paths to data, output gdb, scratch folder and simulation landscape mask
   outPath = os.path.join(dst, landscapes[index], landscapes[index] + ".gdb/")
-  gisDB = "c:/Users/lada/Desktop/dkgis.gdb"                               # input features
+  gisDB = "e:/Gis/dkgis.gdb"                               # input features
   scratchDB = os.path.join(dst, landscapes[index], "scratch")             # scratch folder for tempfiles
   asciifile = "ASCII_" + landscapes[index] + ".txt"
   asciiexp = os.path.join(dst, landscapes[index], asciifile)              # export in ascii (for ALMaSS)
@@ -94,7 +94,7 @@ for index in range(len(landscapes)):
   print "... model settings read"
   
   # Model execution - controls which processes to run:
-  default = 0  # 1 -> run process; 0 -> do not run process
+  default = 1  # 1 -> run process; 0 -> do not run process
   
   # Mosaic
   road = default      #create road theme
@@ -106,7 +106,7 @@ for index in range(len(landscapes)):
   finalmap = default      #assemble final map
   
   # Conversion  - features to raster layers
-  landsea = 1   #land_sea
+  landsea = default   #land_sea
   slopes_105 = default   #slopes along roads
   roadsideverge_110 = default   #road verges
   paths_112 = default   #paths
@@ -603,7 +603,7 @@ for index in range(len(landscapes)):
       markNummerFirst = (Plus(outPath + "tmpRaster", 0))
       markNummer = Int(markNummerFirst)
       rasTemp = Con(rasIsNull == 1, 1, markNummer)
-      rasTemp.save(outPath + "mark1000")
+      rasTemp.save(outPath + "fields1000")
      # arcpy.Delete_management(outPath + "tmpRaster")
   
   # 620 - dikes (dige620)
@@ -699,7 +699,7 @@ for index in range(len(landscapes)):
   #===== Chunk: Themes =====#
   # Combine rasters to thematic maps 
   
-    if Road == 1:   #Assembles a transportation theme for roads and road verges
+    if road == 1:   #Assembles a transportation theme for roads and road verges
       print "Processing road theme ..."
       if arcpy.Exists(outPath + "T1_road"):
         arcpy.Delete_management(outPath + "T1_road")
@@ -787,8 +787,8 @@ for index in range(len(landscapes)):
       T3ana = Raster(outPath + "T3_wetnature")
       T4va = Raster(outPath + "T4_water")
       T5ku = Raster(outPath + "T5_culture")
-      ais1100 = Raster(outPath + "ais_1100")
-      field = Raster(outPath + "fields_1000")   # fields
+      ais1100 = Raster(outPath + "ais1100")
+      field = Raster(outPath + "fields1000")   # fields
       landsea = Raster(outPath + "landhav")
       buildings_250 = Raster(outPath + "bygn250")
   
@@ -808,7 +808,7 @@ for index in range(len(landscapes)):
       print "roads added to map ..."
       step7 = Con(buildings_250 == 1, step6, buildings_250)                   # buildings on top
       print "buildings added to map ..."
-      map01 = Con(landhav == 1, step7, 0)                # sea added
+      map01 = Con(landsea == 1, step7, 0)                # sea added
       print "sea added to map ..."
       map1 = Con(map01 == 1, ais1100, map01) # Use the AIS layer if a cell was not filled by any of the layers above.
       map1.save (outPath + "MapRaw")
@@ -838,7 +838,7 @@ for index in range(len(landscapes)):
   
     endTime = time.strftime('%X %x')
     print ""
-    print "Landscape generated: " + endTime
+    print "Landscape " + landscapes[index] + " generated: " + endTime
   
 #===== End Chunk: Finalize =====#
 
