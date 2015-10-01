@@ -52,11 +52,17 @@ for index in range(len(landscapes)):
   reclasstable = os.path.join(dst, landscapes[index], "reclass.txt")      # reclassification for almass
   attrtable = "ATTR_" + landscapes[index] + ".csv"  # Name of attribute table
   attrexp = os.path.join(dst, landscapes[index], attrtable)  # full path 
-  
+
+
+
   # Select the landscape and convert to raster
   # Set local variables
   in_features = "o:/ST_LandskabsGenerering/harelav/gis/harelav.gdb/kvadrater"
   out_feature = os.path.join(dst, landscapes[index] + "/project.gdb/polymask") 
+  # We need to set these each time we loop through otherwise we recycle the
+  # ones fromt the previous run  
+  arcpy.env.extent = in_features
+  arcpy.env.mask = in_features
   # Define function to construct WHERE clause:
   def buildWhereClause(table, field, value):
     """Constructs a SQL WHERE clause to select rows having the specified value
