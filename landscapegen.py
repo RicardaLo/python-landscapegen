@@ -35,8 +35,16 @@ template = "o:/ST_LandskabsGenerering/gis/skabelon/"
 # Path to the destination
 dst = "e:/Gis/HareValidation/"
 
+# We need to set these each time we loop through otherwise we recycle the
+# ones fromt the previous run  
+defaultextent = arcpy.env.extent
+defaultmask = arcpy.env.mask
+
 # Copy the template directory
 for index in range(len(landscapes)):
+  arcpy.env.extent = defaultextent
+  arcpy.env.mask = defaultmask
+
   dstpath = os.path.join(dst, landscapes[index])
   shutil.copytree(template, dstpath)
   gdbpath = os.path.join(dstpath, "KvadratX.gdb")
@@ -59,10 +67,6 @@ for index in range(len(landscapes)):
   # Set local variables
   in_features = "o:/ST_LandskabsGenerering/harelav/gis/harelav.gdb/kvadrater"
   out_feature = os.path.join(dst, landscapes[index] + "/project.gdb/polymask") 
-  # We need to set these each time we loop through otherwise we recycle the
-  # ones fromt the previous run  
-  arcpy.env.extent = in_features
-  arcpy.env.mask = in_features
   # Define function to construct WHERE clause:
   def buildWhereClause(table, field, value):
     """Constructs a SQL WHERE clause to select rows having the specified value
