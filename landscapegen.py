@@ -50,6 +50,9 @@ for index in range(len(landscapes)):
   asciifile = "ASCII_" + landscapes[index] + ".txt"
   asciiexp = os.path.join(dst, landscapes[index], asciifile)              # export in ascii (for ALMaSS)
   reclasstable = os.path.join(dst, landscapes[index], "reclass.txt")      # reclassification for almass
+  attrtable = "ATTR_" + landscapes[index] + ".csv"  # Name of attribute table
+  attrexp = os.path.join(dst, landscapes[index], attrtable)  # full path 
+  
   # Select the landscape and convert to raster
   # Set local variables
   in_features = "o:/ST_LandskabsGenerering/harelav/gis/harelav.gdb/kvadrater"
@@ -831,6 +834,25 @@ for index in range(len(landscapes)):
       regionALM.save(outPath + "MapFinal")
       nowTime = time.strftime('%X %x')
       print "Regionalisation done ..." + nowTime
+
+  # Export attribute table 
+      table = outPath + "MapFinal"
+      # Write an attribute tabel - based on this answer:
+      # https://geonet.esri.com/thread/83294
+      # List the fields
+      fields = arcpy.ListFields(table)  
+      field_names = [field.name for field in fields]  
+      
+      with open(attrexp,'wb') as f:  
+        w = csv.writer(f)  
+        # Write the headers
+        w.writerow(field_names)  
+        # The search cursor iterates through the 
+        for row in arcpy.SearchCursor(table):  
+          field_vals = [row.getValue(field.name) for field in fields]  
+          w.writerow(field_vals)  
+          del row
+      print "Attribute table exported..." + nowTime    
   
   # convert regionalised map to ascii
       arcpy.RasterToASCII_conversion(regionALM, asciiexp)
