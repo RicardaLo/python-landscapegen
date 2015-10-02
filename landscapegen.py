@@ -7,7 +7,7 @@
 
 #===== Chunk: Setup =====#
 # Import system modules
-import arcpy, traceback, sys, time, shutil, os
+import arcpy, traceback, sys, time, shutil, os, csv
 from arcpy import env
 from arcpy.sa import *
 arcpy.CheckOutExtension("Spatial")
