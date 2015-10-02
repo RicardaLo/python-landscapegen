@@ -11,6 +11,7 @@ import arcpy, traceback, sys, time, shutil, os, csv
 from arcpy import env
 from arcpy.sa import *
 arcpy.CheckOutExtension("Spatial")
+arcpy.env.parallelProcessingFactor = "100%"
 nowTime = time.strftime('%X %x')
 print "Model landscape generator started: " + nowTime
 print "... system modules checked"
