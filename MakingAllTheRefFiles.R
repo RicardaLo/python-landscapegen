@@ -1,10 +1,10 @@
-# Making the Ref files 
+# Making the Ref files
 # Date: 21 December 2014
 # Author: Lars Dalby
 
-# This script will generate the polyref file almass needs
-# You need to export the attribute table for your landscape
-# first. 
+# This script will generate the polyref file almass needs.
+# You need might need to export the attribute table for your landscape
+# first.
 
 if(!require(ralmass)) 
 {
@@ -18,7 +18,7 @@ PathToMaps = 'o:/ST_LandskabsGenerering/outputs/kvadrater/'  # The attribute tab
 maps = dir(PathToMaps)
 length(maps)
 
-for (i in seq_along(maps)) 
+for (i in seq_along(maps))
 {
 	LandscapeName = maps[i]
 	FileName = paste(LandscapeName, 'Attr.txt', sep = '')
@@ -32,7 +32,7 @@ for (i in seq_along(maps))
 # ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ #
 #	    			The farm info  						   #
 # ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ #
-# Here we get the merge farminformation back onto the markpolyID:
+# Here we merge the farminformation back onto the markpolyID:
 	farm = fread('o:/ST_LandskabsGenerering/outputs/FarmInfo2013.txt')
 	farminfo = farm[, c('AlmassCode', 'markpolyID', 'BedriftID', 'BedriftPlusID', 'AfgKode'), with = FALSE]  # Extract only the columns we need for now
 	farminfo[,markpolyID:= gsub(pattern = ',', replacement = '', x = farminfo$markpolyID, fixed = FALSE)]  # Fix seperator issue
@@ -100,7 +100,7 @@ for (i in seq_along(maps))
 	result[PolyType == 110, Farmref:=-1]  # NaturalGrass should not have a Farmref
 # unique(farminfo[, AlmassCode])  # Okay.
 
-# dim(result) 
+# dim(result)
 # dim(attr)  # Okay.
 	setkey(result, 'PolyRefNum')
 	FileName = paste(LandscapeName, 'PolyRef2.txt', sep = '')  # The name of the polyref file
