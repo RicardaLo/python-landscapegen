@@ -14,7 +14,9 @@ if(!require(ralmass))
 library(ralmass)
 library(data.table)
 
-PathToMaps = 'o:/ST_LandskabsGenerering/outputs/kvadrater/'  # The attribute table(s) from NAME_almass. It needs to be exported from ArcGIS.
+# The attribute table(s) from NAME_almass. 
+# Prior to Sep 2015 this table needed to be exported from ArcGIS.
+PathToMaps = 'e:/Gis/HareValidation/'  
 maps = dir(PathToMaps)
 length(maps)
 
@@ -22,7 +24,7 @@ for (i in seq_along(maps))
 {
 	LandscapeName = maps[i]
 	FileName = paste(LandscapeName, 'Attr.txt', sep = '')
-	attr = fread(paste(PathToMaps, LandscapeName, '/', FileName, sep = ''))
+	attr = fread(paste0(PathToMaps, LandscapeName, '/', FileName))
 	cleanattr = CleanAttrTable(AttrTable = attr, Soiltype = TRUE)  # see ?CleanAttrTable for documentation
 	setkey(cleanattr, 'PolyType')
 	targetfarms = cleanattr[PolyType >= 10000]  # Get the fields
@@ -34,7 +36,8 @@ for (i in seq_along(maps))
 # ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ #
 # Here we merge the farminformation back onto the markpolyID:
 	farm = fread('o:/ST_LandskabsGenerering/outputs/FarmInfo2013.txt')
-	farminfo = farm[, c('AlmassCode', 'markpolyID', 'BedriftID', 'BedriftPlusID', 'AfgKode'), with = FALSE]  # Extract only the columns we need for now
+	columns = c('AlmassCode', 'markpolyID', 'BedriftID', 'BedriftPlusID', 'AfgKode')
+	farminfo = farm[, columns, with = FALSE]  # Extract only the columns we need for now
 	farminfo[,markpolyID:= gsub(pattern = ',', replacement = '', x = farminfo$markpolyID, fixed = FALSE)]  # Fix seperator issue
 	farminfo[,markpolyID:= as.numeric(farminfo$markpolyID)]
 	setkey(farminfo, 'markpolyID')
@@ -103,8 +106,8 @@ for (i in seq_along(maps))
 # dim(result)
 # dim(attr)  # Okay.
 	setkey(result, 'PolyRefNum')
-	FileName = paste(LandscapeName, 'PolyRef2.txt', sep = '')  # The name of the polyref file
-	PathToFile = paste(PathToMaps, LandscapeName, '/Almass', LandscapeName, '/', FileName, sep = '')
+	FileName = paste0(LandscapeName, 'PolyRef2.txt')  # The name of the polyref file
+	PathToFile = paste0(PathToMaps, LandscapeName, '/Almass', LandscapeName, '/', FileName)
 	WritePolyref(Table = result, PathToFile = PathToFile)  # see ?WritePolyref for docu.
 
 # ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ #
@@ -113,8 +116,8 @@ for (i in seq_along(maps))
 	farm = fread('o:/ST_LandskabsGenerering/outputs/The2013Farmref.txt')
 	setnames(farm, c('Farmref', 'FarmType'))
 	landscapefarms = farm[Farmref %in% unique(result[,Farmref]),]
-	FileName = paste(LandscapeName, 'Farmref2.txt', sep = '')  # The name of the farmref file
-	PathToFile = paste(PathToMaps, LandscapeName, '/Almass', LandscapeName, '/', FileName, sep = '')
+	FileName = paste0(LandscapeName, 'Farmref2.txt')  # The name of the farmref file
+	PathToFile = paste0(PathToMaps, LandscapeName, '/Almass', LandscapeName, '/', FileName)
 	WritePolyref(Table = landscapefarms, PathToFile = PathToFile, Headers = FALSE, Type = 'Farm')  # see ?WritePolyref for docu.
 	print(i)
 }
