@@ -23,7 +23,7 @@ length(maps)
 for (i in seq_along(maps))
 {
 	LandscapeName = maps[i]
-	FileName = paste(LandscapeName, 'Attr.txt', sep = '')
+	FileName = paste0('ATTR_', LandscapeName, '.csv', sep = '')
 	attr = fread(paste0(PathToMaps, LandscapeName, '/', FileName))
 	cleanattr = CleanAttrTable(AttrTable = attr, Soiltype = TRUE)  # see ?CleanAttrTable for documentation
 	setkey(cleanattr, 'PolyType')
