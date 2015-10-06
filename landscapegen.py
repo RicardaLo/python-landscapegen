@@ -61,8 +61,8 @@ for index in range(len(landscapes)):
   reclasstable = os.path.join(dst, landscapes[index], "reclass.txt")      # reclassification for almass
   attrtable = "ATTR_" + landscapes[index] + ".csv"  # Name of attribute table
   attrexp = os.path.join(dst, landscapes[index], attrtable)  # full path 
-
-
+  soiltable = "SOIL_" + landscapes[index] + ".csv"  # Name of soil type table
+  soilexp = os.path.join(dst, landscapes[index], soiltable)  # full path 
 
   # Select the landscape and convert to raster
   # Set local variables
@@ -863,8 +863,31 @@ for index in range(len(landscapes)):
           field_vals = [row.getValue(field.name) for field in fields]  
           w.writerow(field_vals)  
           del row
-      print "Attribute table exported..." + nowTime    
-  
+      print "Attribute table exported..." + nowTime   
+       
+    # Find soil types
+     # Set local variables
+      inZoneData = RegionALM
+      zoneField = "VALUE"
+      inValueRaster = "e:/Gis/Jordarter.gdb/soilcode10"
+      outTable = "soiltypes.dbf"
+      outZSaT = ZonalStatisticsAsTable(inZoneData, zoneField, inValueRaster, 
+                                 outPath + outTable, "DATA", "MAJORITY")
+      table = outPath + "soiltypes"
+      fields = arcpy.ListFields(table)  
+      field_names = [field.name for field in fields]
+      with open(soilexp,'wb') as s:  
+        w = csv.writer(s)  
+        # Write the headers
+        w.writerow(field_names)  
+        # The search cursor iterates through the 
+        for row in arcpy.SearchCursor(table):  
+          field_vals = [row.getValue(field.name) for field in fields]  
+          w.writerow(field_vals)  
+          del row
+      nowTime = time.strftime('%X %x')
+      print "Soiltype table exported..." + nowTime 
+
   # convert regionalised map to ascii
       arcpy.RasterToASCII_conversion(regionALM, asciiexp)
       print "Conversion to ASCII done ..." + nowTime
