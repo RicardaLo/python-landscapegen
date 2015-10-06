@@ -28,13 +28,13 @@ landscapes = NJ + VJ + OJ + FU + NS + SS
 landscapes.append("BO1")  # Different approach is need to apapend only 1 string
 
 # Temporary test with Ostjylland:
-landscapes = OJ
+landscapes = "OJ1"
 
 # Path to the template directory:
 template = "o:/ST_LandskabsGenerering/gis/skabelon/" 
 
 # Path to the destination
-dst = "e:/Gis/HareValidation/"
+dst = "e:/Gis/HareValidationTest/"
 
 # We need to set these each time we loop through otherwise we recycle the
 # ones fromt the previous run  
@@ -864,24 +864,22 @@ for index in range(len(landscapes)):
           w.writerow(field_vals)  
           del row
       print "Attribute table exported..." + nowTime   
-       
+
     # Find soil types
      # Set local variables
       inZoneData = RegionALM
       zoneField = "VALUE"
       inValueRaster = "e:/Gis/Jordarter.gdb/soilcode10"
-      outTable = "soiltypes.dbf"
+      outTable = os.path.join(dst, landscapes[index], "soiltypes.dbf")
       outZSaT = ZonalStatisticsAsTable(inZoneData, zoneField, inValueRaster, 
-                                 outPath + outTable, "DATA", "MAJORITY")
-      table = outPath + "soiltypes"
-      fields = arcpy.ListFields(table)  
+                                        outTable, "DATA", "MAJORITY")
+      fields = arcpy.ListFields(outTable)  
       field_names = [field.name for field in fields]
       with open(soilexp,'wb') as s:  
         w = csv.writer(s)  
         # Write the headers
         w.writerow(field_names)  
-        # The search cursor iterates through the 
-        for row in arcpy.SearchCursor(table):  
+        for row in arcpy.SearchCursor(outTable):  
           field_vals = [row.getValue(field.name) for field in fields]  
           w.writerow(field_vals)  
           del row
