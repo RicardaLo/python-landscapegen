@@ -867,7 +867,7 @@ for index in range(len(landscapes)):
 
     # Find soil types
      # Set local variables
-      inZoneData = RegionALM
+      inZoneData = regionALM
       zoneField = "VALUE"
       inValueRaster = "e:/Gis/Jordarter.gdb/soilcode10"
       outTable = os.path.join(dst, landscapes[index], "soiltypes.dbf")
