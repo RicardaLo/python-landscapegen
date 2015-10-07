@@ -32,15 +32,14 @@ for (i in seq_along(maps))
 	setnames(farminfo, old = 'markpolyID', new =  'PolyType')  # Quick fix for an easier merge
 	setkey(farminfo, 'PolyType')
 
-	temp = merge(x = targetfarms, y = farminfo, by.x = 'PolyType', 
-		by.y = 'markpolyID', all.x = TRUE)  # Okay, now we just need to move around a bit
-	temp[, c('PolyType', 'Farmref'):=NULL]
-	setnames(temp, old = c('AlmassCode', 'BedriftID'), new = c('PolyType', 'Farmref'))
-	setcolorder(temp, c('PolyType', 'PolyRefNum', 'Area', 'Farmref', 'UnsprayedMarginRef'))
+	temp = merge(x = targetfarms, y = farminfo, all.x = TRUE)  # Okay, now we just need to move around a bit
+	temp[, c('PolyType', 'FarmRef'):=NULL]
+	setnames(temp, old = c('AlmassCode', 'BedriftID'), new = c('PolyType', 'FarmRef'))
+	setcolorder(temp, c('PolyType', 'PolyRefNum', 'Area', 'FarmRef', 'UnSprayedMarginRef'))
 	result = rbind(cleanattr, temp)  # This is essentially putting the fields and everything else back together.
 	
-	result[PolyType == 12, Farmref:=-1]  # AmenityGrass should not have a Farmref
-	result[PolyType == 110, Farmref:=-1]  # NaturalGrass should not have a Farmref
+	result[PolyType == 12, FarmRef:=-1]  # AmenityGrass should not have a Farmref
+	result[PolyType == 110, FarmRef:=-1]  # NaturalGrass should not have a Farmref
 	setkey(result, PolyRefNum)
 # Read in the soil types
 	FileName = paste0('SOIL_', LandscapeName, '.csv', sep = '')
@@ -56,8 +55,8 @@ for (i in seq_along(maps))
 
 # Make a small farmref file to go with the landscape
 	farm = fread('o:/ST_LandskabsGenerering/outputs/The2013Farmref.txt', skip = 1)
-	setnames(farm, c('Farmref', 'FarmType'))
-	landscapefarms = farm[Farmref %in% unique(result[,Farmref]),]
+	setnames(farm, c('FarmRef', 'FarmType'))
+	landscapefarms = farm[FarmRef %in% unique(result[,FarmRef]),]
 	FileName = paste0('Farmref', LandscapeName, '.txt')  # The name of the farmref file
 	PathToFile = paste0(PathToMaps, LandscapeName, '/', FileName)
 	WritePolyref(Table = landscapefarms, PathToFile = PathToFile, Headers = FALSE, Type = 'Farm')  # see ?WritePolyref for docu.
