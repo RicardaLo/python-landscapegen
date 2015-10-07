@@ -13,13 +13,13 @@ if(!require(ralmass))
 library(ralmass)
 library(data.table)
 
-PathToMaps = 'c:/Users/lada/Desktop/'
+PathToMaps = 'e:/Gis/HareValidation/'
 maps = dir(PathToMaps)
 # length(maps)
 
 for (i in seq_along(maps))
 {
-	LandscapeName = 'NJ1'
+	LandscapeName = maps[i]
 	FileName = paste0('ATTR_', LandscapeName, '.csv', sep = '')
 	attr = fread(paste0(PathToMaps, LandscapeName, '/', FileName))
 	cleanattr = CleanAttrTable(AttrTable = attr, Soiltype = FALSE)
