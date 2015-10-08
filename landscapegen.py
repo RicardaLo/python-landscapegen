@@ -1,9 +1,8 @@
-# =======================================================================================================================
-# Name: Landscape generator  -  landscapegen
-# Purpose: The script convert feature layers to rasters and assemble a surface covering land-use map
-# Authors: Flemming Skov & Lars Dalby - Oct-Dec 2014
-# Last large update: October 19, 2014
-# Note:  This version uses the new field polygon theme that covers all of Denmark
+# Name: Landscape generator - landscapegen
+# Purpose: Convert feature layers to rasters and assemble a surface
+# covering land-use map
+# Authors: Flemming Skov & Lars Dalby - Oct-Dec 2014 (original version)
+# Major update to loop through landscapes: Oct 2015, by Lars Dalby
 
 #===== Chunk: Setup =====#
 # Import system modules
@@ -27,14 +26,13 @@ SS = ['SS1', 'SS2', 'SS3', 'SS4', 'SS5', 'SS6']
 landscapes = NJ + VJ + OJ + FU + NS + SS
 landscapes.append("BO1")  # Different approach is need to apapend only 1 string
 
-# Temporary test with Ostjylland:
-landscapes = "OJ1"
-
 # Path to the template directory:
 template = "o:/ST_LandskabsGenerering/gis/skabelon/" 
 
-# Path to the destination
-dst = "e:/Gis/HareValidationTest/"
+# Set fixed paths
+dst = "e:/Gis/HareValidation/"  # Output destination
+gisDB = "e:/Gis/dkgis.gdb"  # Geodatabase with feature layers for DK
+soilraster = "e:/Gis/Jordarter.gdb/soilcode10"  # Raster with soil type for DK
 
 # We need to set these each time we loop through otherwise we recycle the
 # ones fromt the previous run  
@@ -54,11 +52,10 @@ for index in range(len(landscapes)):
 
   # Data - paths to data, output gdb, scratch folder and simulation landscape mask
   outPath = os.path.join(dst, landscapes[index], landscapes[index] + ".gdb/")
-  gisDB = "e:/Gis/dkgis.gdb"                               # input features
-  scratchDB = os.path.join(dst, landscapes[index], "scratch")             # scratch folder for tempfiles
+  scratchDB = os.path.join(dst, landscapes[index], "scratch")  # scratch folder for tempfiles
   asciifile = "ASCII_" + landscapes[index] + ".txt"
-  asciiexp = os.path.join(dst, landscapes[index], asciifile)              # export in ascii (for ALMaSS)
-  reclasstable = os.path.join(dst, landscapes[index], "reclass.txt")      # reclassification for almass
+  asciiexp = os.path.join(dst, landscapes[index], asciifile)  # export in ascii (for ALMaSS)
+  reclasstable = os.path.join(dst, landscapes[index], "reclass.txt")  # reclassification for almass
   attrtable = "ATTR_" + landscapes[index] + ".csv"  # Name of attribute table
   attrexp = os.path.join(dst, landscapes[index], attrtable)  # full path 
   soiltable = "SOIL_" + landscapes[index] + ".csv"  # Name of soil type table
@@ -806,25 +803,25 @@ for index in range(len(landscapes)):
       landsea = Raster(outPath + "landhav")
       buildings_250 = Raster(outPath + "bygn250")
   
-      step1 = Con(field > 999, field, 1)                    # fields first
+      step1 = Con(field > 999, field, 1)       # fields first
       print "fields added to map ..."
-      step2 = Con(T4va == 1, step1, T4va)                   # freshwater on top
+      step2 = Con(T4va == 1, step1, T4va)      # freshwater on top
       print "fresh water added to map ..."
-      step3 = Con(step2 == 1, T3na, step2)                  # natural areas on NOT (fields, water)
+      step3 = Con(step2 == 1, T3na, step2)     # natural areas on NOT (fields, water)
       print "natural areas added to map ..."
-      step4 = Con(step3 == 1, T2be, step3)                  # built up areas on NOT (fields, water, natural areas)
+      step4 = Con(step3 == 1, T2be, step3)     # built up areas on NOT (fields, water, natural areas)
       print "built up areas added to map ..."
-      step4a = Con(T3ana == 1, step4, T3ana)                # wet natural areas on top
+      step4a = Con(T3ana == 1, step4, T3ana)   # wet natural areas on top
       print "wet natural areas added to map  ..."
-      step5 = Con(T5ku == 1, step4a, T5ku)                  # cultural features on top
+      step5 = Con(T5ku == 1, step4a, T5ku)     # cultural features on top
       print "cultural landscape features added to map ..."
-      step6 = Con(T1ve == 1, step5, T1ve)                   # roads on top
+      step6 = Con(T1ve == 1, step5, T1ve)                  # roads on top
       print "roads added to map ..."
-      step7 = Con(buildings_250 == 1, step6, buildings_250)                   # buildings on top
+      step7 = Con(buildings_250 == 1, step6, buildings_250) # buildings on top
       print "buildings added to map ..."
-      map01 = Con(landsea == 1, step7, 0)                # sea added
+      map01 = Con(landsea == 1, step7, 0)                   # sea added
       print "sea added to map ..."
-      map1 = Con(map01 == 1, ais1100, map01) # Use the AIS layer if a cell was not filled by any of the layers above.
+      map1 = Con(map01 == 1, ais1100, map01)  # Use the AIS layer if empty
       map1.save (outPath + "MapRaw")
       nowTime = time.strftime('%X %x')
       print "Raw map assembled ..." + nowTime
@@ -833,7 +830,8 @@ for index in range(len(landscapes)):
   
   #===== Chunk: Finalize =====#
   # Reclassify to ALMaSS raster values
-  # ALMaSS uses different values for the landcover types, so this step simply translates
+  # ALMaSS uses different values for the landcover types,
+  # so this step simply translates
   # the numeric values.
       mosaik2 = ReclassByASCIIFile(map1, reclasstable, "DATA")
       mosaik2.save(outPath + "MapReclassified")
@@ -869,7 +867,7 @@ for index in range(len(landscapes)):
      # Set local variables
       inZoneData = regionALM
       zoneField = "VALUE"
-      inValueRaster = "e:/Gis/Jordarter.gdb/soilcode10"
+      inValueRaster = soilraster
       outTable = os.path.join(dst, landscapes[index], "soiltypes.dbf")
       outZSaT = ZonalStatisticsAsTable(inZoneData, zoneField, inValueRaster, 
                                         outTable, "DATA", "MAJORITY")
