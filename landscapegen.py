@@ -53,7 +53,8 @@ for index in range(len(landscapes)):
   # Data - paths to data, output gdb, scratch folder and simulation landscape mask
   outPath = os.path.join(dst, landscapes[index], landscapes[index] + ".gdb/")
   scratchDB = os.path.join(dst, landscapes[index], "scratch")  # scratch folder for tempfiles
-  asciifile = "ASCII_" + landscapes[index] + ".txt"
+  # asciifile = "ASCII_" + landscapes[index] + ".txt"
+  asciifile = "ASCII_INPUT.txt"  # The name that the lsb converter expects
   asciiexp = os.path.join(dst, landscapes[index], asciifile)  # export in ascii (for ALMaSS)
   reclasstable = os.path.join(dst, landscapes[index], "reclass.txt")  # reclassification for almass
   attrtable = "ATTR_" + landscapes[index] + ".csv"  # Name of attribute table
