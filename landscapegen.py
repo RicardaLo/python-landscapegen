@@ -6,6 +6,7 @@
 # developed by Skov & Dalby. See http://www.biorxiv.org/content/early/2015/08/31/025833
 
 # Import system modules
+# Dette er en test
 import arcpy, traceback, sys, time, gc, os
 from arcpy import env
 from arcpy.sa import *
