@@ -6,8 +6,8 @@
 # developed by Skov & Dalby. See http://www.biorxiv.org/content/early/2015/08/31/025833
 
 # Import system modules
-import arcpy, traceback, sys, time, gc, os
 from arcpy import env
+import arcpy, traceback, sys, time, gc, os
 from arcpy.sa import *
 arcpy.CheckOutExtension("Spatial")
 nowTime = time.strftime('%X %x')
@@ -18,11 +18,11 @@ print "... system modules checked"
 # Data - paths to data, output gdb, scratch folder and model landscape mask
 # All data have prior to running the script been imported into a file geodatabase
 # with the desired resolution.
-outPath = "c:/Users/lada/Landskabsgenerering/Norge/norway.gdb/"                    # Maps are stored here
-localSettings = "c:/Users/lada/Landskabsgenerering/Norge/project.gdb/NorwayOutlineRaster"   # project folder with mask
-gisDB = "c:/Users/lada/Landskabsgenerering/Norge/norwaygis.gdb"                    # input features
-scratchDB = "c:/Users/lada/Landskabsgenerering/Norge/scratch"                      # scratch folder for tempfiles
-asciiexp = "c:/Users/lada/Landskabsgenerering/Norge/ASCII_Norway.txt"              # export in ascii (for ALMaSS)
+outPath = "c:/Norway/norway.gdb/"                             # Maps are stored here
+localSettings = "c:/Norway/project.gdb/outlineRaster"         # project folder with mask
+gisDB = "c:/Norway/norwaygis.gdb"                             # input features
+scratchDB = "c:/Norway/scratch"                               # scratch folder for tempfiles
+asciiexp = "c:/Norway/ASCII_Norway.txt"                       # export in ascii (for ALMaSS)
 
 # Model settings
 arcpy.env.overwriteOutput = True
@@ -35,10 +35,11 @@ print "... model settings read"
 
 # Model execution - controls which processes are executed
 
-default = 0  # 1 -> run process; 0 -> not run proce_css
+default = 0  # 1 -> run process; 0 -> not run process
 
 # Conversion  - features to raster layers
-BaseMap = default
+Preparation = default
+BaseMap = 1
 Buildings_c = default
 Pylons_c = default
 Paths_c = default
@@ -51,14 +52,22 @@ print " "
 #####################################################################################################
 
 try:
-# Base map
-  if BaseMap == 1:
-    print "Processing BaseMap ..."
-    if arcpy.Exists(outPath + "BaseMap"):
-      print "... deleting existing raster"
-      arcpy.Delete_management(outPath + "BaseMap")
-      # Merge the municipalities into a single feature layer
-    print '... merging'
+# Basic preparation of maps and data
+  if Preparation == 1:
+    print "Preparing and cleaning data  ..."
+    print('... deleting existing data')
+    if arcpy.Exists(outPath + "MAT_merge"):
+      arcpy.Delete_management(outPath + "MAT_merge")
+    if arcpy.Exists(outPath + "AR_merge"):
+      arcpy.Delete_management(outPath + "AR_merge")      
+    if arcpy.Exists(outPath + "combi_identify"):
+      arcpy.Delete_management(outPath + "combi_identify")
+    if arcpy.Exists(outPath + "combi_single"):
+      arcpy.Delete_management(outPath + "combi_single")
+    if arcpy.Exists(outPath + "combi_final"):
+      arcpy.Delete_management(outPath + "combi_final")
+
+    print('... merging flate maps')
     arcpy.Merge_management(['T32_1702ar5_flate', 'T32_1719ar5_flate', 'T32_1721ar5_flate',
     'T32_1756ar5_flate', 'T32_1724ar5_flate', 'T32_1725ar5_flate'], outPath + 'AR_merge')
     # Set local variables
@@ -78,12 +87,86 @@ try:
            retval += s
        return int(retval)"""
     # Add field to populate with the concatenated ARTYPE, ARTRESLAG, ARSKOGBON 
-    print '... adding field'
+    print '..... adding field'
     arcpy.AddField_management(inTable, fieldName, "LONG", "", "", 6)
-    print '... calculating field'
+    print '..... calculating field'
     arcpy.CalculateField_management(inTable, fieldName, expression, "PYTHON_9.3", codeblock)
-    print '... converting features to raster'
-    arcpy.PolygonToRaster_conversion(outPath + "AR_merge", "COMBI", outPath + "BaseMap", "CELL_CENTER", "NONE", "1")
+
+    # Merge the 'matrikkel'maps into a single feature layer
+    print '... merging matrikkel maps'
+    arcpy.Merge_management(['mat32_1702', 'mat32_1719', 'mat32_1721',
+    'mat32_1724', 'mat32_1725', 'mat32_1756'], outPath + 'MAT_merge')
+    # Set local variables
+    inTable = outPath + "MAT_merge"
+    fieldName = "FARMID"
+    expression = "concat(!MATRIKKELK!, !GNR!, !BNR!)"
+    codeblock = """def concat(*args):
+       # Initialize the return value to an empty string,
+       retval = ""
+       # For each value passed in...
+       for t in args:
+         # Convert to a string (this catches any numbers), then remove leading and trailing blanks
+         s = str(t).strip()
+         # Add the field value to the return value and a '-' (removes the final '-' before return)
+         if s <> '':
+           retval += s
+           retval += '-'
+       retval = retval[:-1]
+       return (retval)""" 
+    # Add field to populate with the concatenated MATRIKKELK, GNR, BNR 
+    print '..... adding field'
+    arcpy.AddField_management(inTable, fieldName, "TEXT", "", "", 20 )
+    print '..... calculating field'
+    arcpy.CalculateField_management(inTable, fieldName, expression, "PYTHON_9.3", codeblock)
+
+    # combining matrikkel and flate maps using identify commando
+    print('... combining matrikkel and flate maps')
+    arcpy.Identity_analysis (outPath + 'AR_merge', outPath + 'MAT_merge', outPath + 'combi_identify')
+    
+    # repair command - just in case
+    print('... repairing geometry')
+    arcpy.RepairGeometry_management (outPath + 'combi_identify')
+
+    # multi- to singlepart command
+    print('... running multi- to singlepart command')
+    arcpy.MultipartToSinglepart_management(outPath + 'combi_identify', outPath + 'combi_single')
+
+    # calculate area for each individual polygon in square meters
+    print('... calculating area for each polygon')
+    arcpy.AddGeometryAttributes_management(outPath + 'combi_single', 'AREA', 'METERS', 'SQUARE_METERS' )
+
+    # eliminate sliver polygons
+    print('... remove sliver polygons')
+    # Execute MakeFeatureLayer
+    arcpy.MakeFeatureLayer_management(outPath + 'combi_single', "blocklayer") 
+    # Execute SelectLayerByAttribute to define features to be eliminated - POLY_AREA in sq.meters
+    arcpy.SelectLayerByAttribute_management("blocklayer", "NEW_SELECTION", '"POLY_AREA" < 150')
+    # Execute Eliminate for all polygons exept the road polygons (ARTTYPE = 12)
+    arcpy.Eliminate_management("blocklayer", outPath + "combi_final", "LENGTH", '"ARTYPE" = 12')
+
+
+    #NOTE!
+    #Manual step required before moving to BaseMap procedure!!
+    #Export attribute table of 'combi_final' to Excel
+    #Add row 'COMBI2'
+    #Individual fields belonging to ARTYPE = 21 are numbered from 2100000 and up (using 'fill' series with increment 1)
+    #Individual fields belonging to ARTYPE = 22 are numbered from 2200000 and up
+    #Individual fields belonging to ARTYPE = 23 are numbered from 2300000 and up
+    #In all other cells COMBI2 = COMBI1
+    #Save and import back into GIS; join with OBJECTID and export data to new feature set: 'combi_final_fields'
+
+
+# Base map
+  if BaseMap == 1:
+    print "Processing BaseMap ..."
+    if arcpy.Exists(outPath + "BaseMap"):
+      print "... deleting existing raster"
+      arcpy.Delete_management(outPath + "BaseMap")
+
+    print '... converting features to raster' 
+    #NB NB  not preliminary layer 'combi_final_fields' is not calculated automatically
+    
+    arcpy.PolygonToRaster_conversion(outPath + "combi_final_fields", "COMBI2", outPath + "BaseMap", "CELL_CENTER", "NONE", "1")
     inRaster = outPath + "BaseMap"
     reclassField = "Value"
     remap = RemapValue([[119898, 10],
@@ -102,10 +185,12 @@ try:
       [603911, 95],
       [129898, 121],
       [213998, 69],
-      [999898, 69]])  # Missing data currently mapped to bare rock as it is outside
-                      # the area of interest for the goose modelling.
+      [999898, 69]])
+
+    # Missing data currently mapped to bare rock as it is outside the area of interest for the goose modelling.
     print '... reclassifying BaseMap'
-    outReclassify = Reclassify(inRaster, reclassField, remap, "NODATA")
+
+    outReclassify = Reclassify(inRaster, reclassField, remap, "DATA")
     arcpy.Delete_management(outPath + "BaseMap")
     outReclassify.save(outPath + "BaseMap")
 
