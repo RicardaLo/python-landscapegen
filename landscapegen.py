@@ -39,14 +39,14 @@ default = 0  # 1 -> run process; 0 -> not run process
 
 # Conversion  - features to raster layers
 Preparation = default
-BaseMap = 1
+BaseMap = default
 Buildings_c = default
 Pylons_c = default
 Paths_c = default
 Railway_c = default
 CompleteMap_c = default  # Requires all the above layers
-Regionalize_c = default  # Requires the CompleteMap
-ConvertAscii_c = default  # Requires the RegionalizedMap
+Regionalize_c = 1  # Requires the CompleteMap
+ConvertAscii_c = 1  # Requires the RegionalizedMap
 print " "
 
 #####################################################################################################
@@ -152,7 +152,7 @@ try:
     #Individual fields belonging to ARTYPE = 21 are numbered from 2100000 and up (using 'fill' series with increment 1)
     #Individual fields belonging to ARTYPE = 22 are numbered from 2200000 and up
     #Individual fields belonging to ARTYPE = 23 are numbered from 2300000 and up
-    #In all other cells COMBI2 = COMBI1
+    #In all other cells COMBI2 = COMBI
     #Save and import back into GIS; join with OBJECTID and export data to new feature set: 'combi_final_fields'
 
 
@@ -204,7 +204,7 @@ try:
     'T32_1756ledning_punkt', 'T32_1724ledning_punkt','T32_1725ledning_punkt'], outPath + 'LedningPunkt_merge')
     print '... merging pylon layers'
     eucDistTemp = EucDistance(outPath + "LedningPunkt_merge", "", "1", "")
-    print 'calculating euclidian distance'
+    print '... calculating euclidian distance'
     rasTemp = Con(eucDistTemp < 1.5, 212, 1)
     rasTemp.save(outPath + "Pylons")
 
@@ -217,7 +217,7 @@ try:
     print '... merging building layers'
     arcpy.Merge_management(['T32_1702bygning_flate', 'T32_1719bygning_flate', 'T32_1721bygning_flate',
     'T32_1756bygning_flate', 'T32_1724bygning_flate', 'T32_1725bygning_flate'], outPath + 'BygningFlate_merge')
-    print 'checking geometry'
+    print '... checking geometry'
     arcpy.CheckGeometry_management(outPath + "BygningFlate_merge", outPath + "CG_Result")
     # Table that was produced by Check Geometry tool
     table = outPath + 'CG_Result'
@@ -231,7 +231,7 @@ try:
      
     # Now loop through the fcs list, backup the bad geometries into fc + "_bad_geom"
     # then repair the fc
-    print "> Processing {0} feature classes".format(len(fcs))
+    print "..... processing {0} feature classes".format(len(fcs))
     for fc in fcs:
         print "Processing " + fc
         lyr = 'temporary_layer'
@@ -248,7 +248,7 @@ try:
         arcpy.CopyFeatures_management(lyr, fc + "_bad_geom")
         arcpy.RemoveJoin_management(lyr, os.path.basename(table))
         arcpy.RepairGeometry_management(lyr)
-    print 'converting buildings to raster'
+    print '... converting buildings to raster'
     arcpy.PolygonToRaster_conversion(outPath + "BygningFlate_merge", "OBJTYPE", outPath + "tmpRaster", "CELL_CENTER", "NONE", "1")
     rasIsNull = IsNull(outPath + "tmpRaster")
     rasTemp = Con(rasIsNull == 1, 1, 5)
@@ -303,7 +303,7 @@ try:
 # Regionalise map
   if Regionalize_c == 1:
     print 'Regionalizing...'
-    RegionalizedMap = RegionGroup(step4,"EIGHT","WITHIN","ADD_LINK","")
+    RegionalizedMap = RegionGroup(outPath + 'CompleteMap',"EIGHT","WITHIN","ADD_LINK","")
     RegionalizedMap.save(outPath + "FinalMap")
     nowTime = time.strftime('%X %x')
     print "Regionalization done... " + nowTime
@@ -311,7 +311,7 @@ try:
 # convert regionalised map to ascii
   if ConvertAscii_c == 1:
     print 'Converting to ASCII...'
-    arcpy.RasterToASCII_conversion(RegionalizedMap, asciiexp)
+    arcpy.RasterToASCII_conversion(outPath + "FinalMap", asciiexp)
     nowTime = time.strftime('%X %x')
     print "Conversion to ASCII done... " + nowTime
 
