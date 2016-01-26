@@ -35,7 +35,7 @@ print "... model settings read"
 
 # Model execution - controls which processes are executed
 
-default = 0  # 1 -> run process; 0 -> not run process
+default = 1  # 1 -> run process; 0 -> not run process
 
 # Conversion  - features to raster layers
 Preparation = default
@@ -45,8 +45,8 @@ Pylons_c = default
 Paths_c = default
 Railway_c = default
 CompleteMap_c = default  # Requires all the above layers
-Regionalize_c = 1  # Requires the CompleteMap
-ConvertAscii_c = 1  # Requires the RegionalizedMap
+Regionalize_c = default  # Requires the CompleteMap
+ConvertAscii_c = default  # Requires the RegionalizedMap
 print " "
 
 #####################################################################################################
@@ -144,16 +144,38 @@ try:
     # Execute Eliminate for all polygons exept the road polygons (ARTTYPE = 12)
     arcpy.Eliminate_management("blocklayer", outPath + "combi_final", "LENGTH", '"ARTYPE" = 12')
 
+    ####  ATTEMPT TO PROGRAM SEQUENTIAL ENUMERATION
 
-    #NOTE!
-    #Manual step required before moving to BaseMap procedure!!
-    #Export attribute table of 'combi_final' to Excel
-    #Add row 'COMBI2'
-    #Individual fields belonging to ARTYPE = 21 are numbered from 2100000 and up (using 'fill' series with increment 1)
-    #Individual fields belonging to ARTYPE = 22 are numbered from 2200000 and up
-    #Individual fields belonging to ARTYPE = 23 are numbered from 2300000 and up
-    #In all other cells COMBI2 = COMBI
-    #Save and import back into GIS; join with OBJECTID and export data to new feature set: 'combi_final_fields'
+    print '..... adding field'
+    arcpy.AddField_management(outPath + 'combi_final', 'CODE', "LONG", "", "", 12)
+    print '..... calculating field'
+
+    fc = outPath + 'combi_final'
+    fields = ['ARTYPE', 'CODE']
+
+    num21 = 2100000
+    num22 = 2200000
+    num23 = 2300000
+
+    # Create update cursor for feature class 
+    # For each row, evaluate the ARTYPE value (index position of 0), and update field CODE (index position of 1)
+
+    with arcpy.da.UpdateCursor(fc, fields) as cursor: 
+      for row in cursor:
+        if (row[0] == 21):
+            row[1] = num21
+            num21 = num21 + 1
+        elif (row[0] == 22):
+            row[1] = num22
+            num22 = num22 + 1
+        elif (row[0] == 23):
+            row[1] = num23
+            num23 = num23 + 1
+        else:
+            row[1] = row[0]
+
+        # Update the cursor with the updated list
+        cursor.updateRow(row)
 
 
 # Base map
@@ -166,7 +188,7 @@ try:
     print '... converting features to raster' 
     #NB NB  not preliminary layer 'combi_final_fields' is not calculated automatically
     
-    arcpy.PolygonToRaster_conversion(outPath + "combi_final_fields", "COMBI2", outPath + "BaseMap", "CELL_CENTER", "NONE", "1")
+    arcpy.PolygonToRaster_conversion(outPath + "combi_final", "CODE", outPath + "BaseMap", "CELL_CENTER", "NONE", "1")
     inRaster = outPath + "BaseMap"
     reclassField = "Value"
     remap = RemapValue([[119898, 10],
