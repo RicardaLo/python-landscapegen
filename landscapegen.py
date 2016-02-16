@@ -5,6 +5,8 @@
 # The script is a modified version of the original landscape generator script
 # developed by Skov & Dalby. See http://www.biorxiv.org/content/early/2015/08/31/025833
 
+# Test af pull request 16022016 LD
+
 # Import system modules
 from arcpy import env
 import arcpy, traceback, sys, time, gc, os, csv
