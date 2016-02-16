@@ -5,8 +5,6 @@
 # The script is a modified version of the original landscape generator script
 # developed by Skov & Dalby. See http://www.biorxiv.org/content/early/2015/08/31/025833
 
-# Test af pull request 16022016 LD
-
 # Import system modules
 from arcpy import env
 import arcpy, traceback, sys, time, gc, os
@@ -145,6 +143,18 @@ try:
     arcpy.SelectLayerByAttribute_management("blocklayer", "NEW_SELECTION", '"POLY_AREA" < 150')
     # Execute Eliminate for all polygons exept the road polygons (ARTTYPE = 12)
     arcpy.Eliminate_management("blocklayer", outPath + "combi_final", "LENGTH", '"ARTYPE" = 12')
+    # Recalculate the area
+    # Set local variables
+    inFeatures = outPath + "combi_final"
+    outFeatureClass = outPath + "combi_final_backup"
+    dropFields = "POLY_AREA"
+    # Make a backup just in case
+    arcpy.CopyFeatures_management(inFeatures, outFeatureClass)
+    # Execute DeleteField
+    arcpy.DeleteField_management(outFeatureClass, dropFields)
+    # Recalculate area for each individual polygon in square meters
+    print('... recalculating area for each polygon')
+    arcpy.AddGeometryAttributes_management(outPath + 'combi_single', 'AREA', 'METERS', 'SQUARE_METERS' )
 
     ####  ATTEMPT TO PROGRAM SEQUENTIAL ENUMERATION
 
@@ -357,4 +367,3 @@ except:
 
     arcpy.AddMessage(arcpy.GetMessages(1))
     print arcpy.GetMessages(1)
-# test
