@@ -3,7 +3,9 @@
 # Purpose: Convert feature layers to rasters and assemble a surface covering land-use map
 # Author: Lars Dalby - September 2015
 # The script is a modified version of the original landscape generator script
-# developed by Skov & Dalby. See http://www.biorxiv.org/content/early/2015/08/31/025833
+# developed by Skov & Dalby. See http://www.biorxiv.org/content/early/2015/08/31/025833 or
+# http://www.sciencedirect.com/science/article/pii/S0048969715308597
+# doi:10.1016/j.scitotenv.2015.10.042
 
 # Import system modules
 from arcpy import env
@@ -149,17 +151,22 @@ try:
     # Set local variables
     inFeatures = outPath + "combi_final"
     outFeatureClass = outPath + "combi_final_backup"
-    dropFields = "POLY_AREA"
+    # Remove fields that are not needed (incl the POLY_AREA that needs recalculation)
+    dropFields = ["OBJECTID", "FID_AR_merge", "POLY_", "POLY_ID", "KOORDH", "OBJTYPE", "ARKARTSTD", 
+                  "DATFGSTDAT", "VERIFDATO", "MALEMETODE", "NOYAKTIGHE", "SYNBARHET", "PRODUKT", 
+                  "VERSJON", "OMRADEID", "ORGDATVERT", "KOPIDATO", "OPPHAV", "FID_MAT_merge", "POLY1", 
+                  "POLY_ID_1", "KOORDH_1", "OBJTYPE_1", "HOVEDTEIG", "PUNKTFESTE", "TVIST", 
+                  "UREGJORDSA", "AVKLARTEIE", "TEIGMEDFLE", "TEIGFLEREM", "AREAL", "AREALMERKN", 
+                  "KOBLING_ID", "OMRADEID_1", "ORGDATVERT_1", "KOPIDATO_1", "OBJECTID_1", 
+                  "Shape_Leng", "ORIG_FID", "Shape_Length", "Shape_Area", "POLY_AREA"]
     # Make a backup just in case
     arcpy.CopyFeatures_management(inFeatures, outFeatureClass)
     # Execute DeleteField
     arcpy.DeleteField_management(outFeatureClass, dropFields)
     # Recalculate area for each individual polygon in square meters
     print('... recalculating area for each polygon')
-    arcpy.AddGeometryAttributes_management(outPath + 'combi_single', 'AREA', 'METERS', 'SQUARE_METERS' )
-
-    ####  ATTEMPT TO PROGRAM SEQUENTIAL ENUMERATION
-
+    arcpy.AddGeometryAttributes_management(outPath + 'combi_final', 'AREA', 'METERS', 'SQUARE_METERS' )
+    # Make unique field ID's
     print '..... adding field'
     arcpy.AddField_management(outPath + 'combi_final', 'CODE', "LONG", "", "", 12)
     print '..... calculating field'
