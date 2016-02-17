@@ -21,7 +21,7 @@ print "... system modules checked"
 # All data have prior to running the script been imported into a file geodatabase
 # with the desired resolution.
 outPath = "c:/Norway/norway.gdb/"                             # Maps are stored here
-localSettings = "c:/Norway/project.gdb/outlineRaster"         # project folder with mask
+localSettings = "c:/Norway/project.gdb/outlineRasterAll"         # project folder with mask
 gisDB = "c:/Norway/norwaygis.gdb"                             # input features
 scratchDB = "c:/Norway/scratch"                               # scratch folder for tempfiles
 asciiexp = "c:/Norway/ASCII_Norway.txt"
@@ -42,15 +42,15 @@ print "... model settings read"
 default = 0  # 1 -> run process; 0 -> not run process
 
 # Conversion  - features to raster layers
-Preparation = default
+Preparation = 1
 BaseMap = default
 Buildings_c = default
 Pylons_c = default
 Paths_c = default
 Railway_c = default
-CompleteMap_c = 1  # Requires all the above layers
-Regionalize_c = 1  # Requires the CompleteMap
-ConvertAscii_c = 1  # Requires the RegionalizedMap
+CompleteMap_c = default  # Requires all the above layers
+Regionalize_c = default  # Requires the CompleteMap
+ConvertAscii_c = default  # Requires the RegionalizedMap
 print " "
 
 #####################################################################################################
