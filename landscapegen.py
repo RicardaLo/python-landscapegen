@@ -147,7 +147,7 @@ try:
     arcpy.Eliminate_management("blocklayer", outPath + "combi_final", "LENGTH", '"ARTYPE" = 12')
     # Recalculate the area
     # Remove fields that are not needed (incl the POLY_AREA that needs recalculation)
-    dropFields = ["OBJECTID", "FID_AR_merge", "POLY_", "POLY_ID", "KOORDH", "OBJTYPE", "ARKARTSTD", 
+    dropFields = ["FID_AR_merge", "POLY_", "POLY_ID", "KOORDH", "OBJTYPE", "ARKARTSTD", 
                   "DATFGSTDAT", "VERIFDATO", "MALEMETODE", "NOYAKTIGHE", "SYNBARHET", "PRODUKT", 
                   "VERSJON", "OMRADEID", "ORGDATVERT", "KOPIDATO", "OPPHAV", "FID_MAT_merge", "POLY1", 
                   "POLY_ID_1", "KOORDH_1", "OBJTYPE_1", "HOVEDTEIG", "PUNKTFESTE", "TVIST", 
