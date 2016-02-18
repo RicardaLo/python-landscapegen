@@ -21,7 +21,7 @@ print "... system modules checked"
 # All data have prior to running the script been imported into a file geodatabase
 # with the desired resolution.
 outPath = "c:/Norway/norway.gdb/"                             # Maps are stored here
-localSettings = "c:/Norway/project.gdb/outlineRasterAll"         # project folder with mask
+localSettings = "c:/Norway/project.gdb/outlineRaster"         # project folder with mask
 gisDB = "c:/Norway/norwaygis.gdb"                             # input features
 scratchDB = "c:/Norway/scratch"                               # scratch folder for tempfiles
 asciiexp = "c:/Norway/ASCII_Norway.txt"
