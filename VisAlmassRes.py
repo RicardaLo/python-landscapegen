@@ -2,7 +2,9 @@
 # Remap values to goose numbers from sim
 
 # Import system modules
-import arcpy
+from arcpy import env
+import arcpy, traceback, sys, time, gc, os
+from arcpy.sa import *
 arcpy.CheckOutExtension("Spatial")
 
 # Set local variables
@@ -14,8 +16,6 @@ rasterType = "INTEGER"
 arcpy.ASCIIToRaster_conversion(inASCII, outRaster, rasterType)
 
 # NA the polygons without geese on them
-inRaster = outRaster
-inRemapTable = #  Insert fieldforage file which have been subset down to only goose filds and have a column with
-# Polyref and Avg number
+inRemapTable = "c:/Users/lada/Desktop/reclass.txt"
 # Execute Reclassify
-outRaster = ReclassByTable(inRaster, inRemapTable,"Polyref","Polyref","AvgNumber","NODATA")
+reclsRaster = ReclassByTable(outRaster, inRemapTable,"Polyref","Polyref","AvgNumber","NODATA")
