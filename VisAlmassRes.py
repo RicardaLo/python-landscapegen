@@ -8,8 +8,8 @@ from arcpy.sa import *
 arcpy.CheckOutExtension("Spatial")
 arcpy.env.parallelProcessingFactor = "75%"
 # Set local variables
-inASCII = "c:/MSV/WorkDirectory/AsciiLandscape.txt"
-outRaster = "C:/Users/lada/Desktop/vejlerne"
+inASCII = "c:/AsciiTest/AsciiLandscape.txt"
+outRaster = "c:/AsciiTest/vejlerne"
 rasterType = "INTEGER"
 try:
 	# Run ASCIIToRaster
