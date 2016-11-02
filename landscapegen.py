@@ -20,12 +20,11 @@ print "... system modules checked"
 # Data - paths to data, output gdb, scratch folder and model landscape mask
 # All data have prior to running the script been imported into a file geodatabase
 # with the desired resolution.
-outPath = "c:/Norway/norway.gdb/"                             # Maps are stored here
-localSettings = "c:/Norway/project.gdb/outlineRaster"         # project folder with mask
-gisDB = "c:/Norway/norwaygis.gdb"                             # input features
-scratchDB = "c:/Norway/scratch"                               # scratch folder for tempfiles
-asciiexp = "c:/Norway/ASCII_Norway.txt"                       # export in ascii (for ALMaSS)
-
+outPath = "o:/ST_LandskabsGenerering/Norway/Landscape/NTrondelag.gdb/"                  # Maps are stored here
+localSettings = "o:/ST_LandskabsGenerering/Norway/Landscape/project.gdb/outlineRaster"  # project folder with mask
+gisDB = "o:/ST_LandskabsGenerering/Norway/Landscape/norwaygis.gdb"                      # input features
+scratchDB = "o:/ST_LandskabsGenerering/Norway/Landscape/scratch"                        # scratch folder for tempfiles
+asciiexp = "o:/ST_LandskabsGenerering/Norway/Landscape/outputs/ASCII_NTrondelag.txt"    # export in ascii (for ALMaSS)
 # Model settings
 arcpy.env.overwriteOutput = True
 arcpy.env.workspace = gisDB
