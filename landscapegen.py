@@ -9,7 +9,7 @@
 
 # Import system modules
 from arcpy import env
-import arcpy, traceback, sys, time, gc, os
+import arcpy, traceback, sys, time, gc, os, csv
 from arcpy.sa import *
 arcpy.CheckOutExtension("Spatial")
 nowTime = time.strftime('%X %x')
@@ -25,6 +25,9 @@ localSettings = "o:/ST_LandskabsGenerering/Norway/Landscape/project.gdb/outlineR
 gisDB = "o:/ST_LandskabsGenerering/Norway/Landscape/norwaygis.gdb"                      # input features
 scratchDB = "o:/ST_LandskabsGenerering/Norway/Landscape/scratch"                        # scratch folder for tempfiles
 asciiexp = "o:/ST_LandskabsGenerering/Norway/Landscape/outputs/ASCII_NTrondelag.txt"    # export in ascii (for ALMaSS)
+attrexp =  "c:/Norway/Attr_Norway.csv"                       # full path 
+# export in ascii (for ALMaSS)
+
 # Model settings
 arcpy.env.overwriteOutput = True
 arcpy.env.workspace = gisDB
@@ -36,10 +39,10 @@ print "... model settings read"
 
 # Model execution - controls which processes are executed
 
-default = 1  # 1 -> run process; 0 -> not run process
+default = 0  # 1 -> run process; 0 -> not run process
 
 # Conversion  - features to raster layers
-Preparation = default
+Preparation = 1
 BaseMap = default
 Buildings_c = default
 Pylons_c = default
@@ -342,6 +345,25 @@ try:
     RegionalizedMap.save(outPath + "FinalMap")
     nowTime = time.strftime('%X %x')
     print "Regionalization done... " + nowTime
+
+ # Export attribute table 
+    table = outPath + "FinalMap"
+    # Write an attribute tabel - based on this answer:
+    # https://geonet.esri.com/thread/83294
+    # List the fields
+    fields = arcpy.ListFields(table)  
+    field_names = [field.name for field in fields]  
+    
+    with open(attrexp,'wb') as f:  
+      w = csv.writer(f)  
+      # Write the headers
+      w.writerow(field_names)  
+      # The search cursor iterates through the 
+      for row in arcpy.SearchCursor(table):  
+        field_vals = [row.getValue(field.name) for field in fields]  
+        w.writerow(field_vals)  
+        del row
+    print "Attribute table exported..." + nowTime 
 
 # convert regionalised map to ascii
   if ConvertAscii_c == 1:
