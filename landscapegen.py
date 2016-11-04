@@ -20,13 +20,13 @@ print "... system modules checked"
 # Data - paths to data, output gdb, scratch folder and model landscape mask
 # All data have prior to running the script been imported into a file geodatabase
 # with the desired resolution.
-staticpath = "o:/ST_LandskabsGenerering/Norway/Landscape/"
-outPath = os.path.join(staticpath, "NTrondelag.gdb")                  # Maps are stored here
-localSettings = os.path.join(staticpath,"project.gdb/outlineRaster")  # project folder with mask
-gisDB = os.path.join(staticpath,"NTrondelaggis.gdb")                      # input features
+staticpath = "o:/ST_LandskabsGenerering/Norway/"
+outPath = os.path.join(staticpath, "Landscape", "NTrondelag.gdb")                  # Maps are stored here
+localSettings = os.path.join(staticpath, "Landscape", "project.gdb/NTrondelagOutlineRaster")  # project folder with mask
+gisDB = os.path.join(staticpath, "RawData","NTrondelaggis.gdb")                      # input features
 scratchDB = os.path.join(staticpath,"scratch")                        # scratch folder for tempfiles
-asciiexp = os.path.join(staticpath,"outputs", "ASCII_NTrondelag.txt") # export in ascii (for ALMaSS)
-attrexp =  os.path.join(staticpath,"outputs", "Attr_NTrondelag.csv")      # export attribute table (for ALMaSS)
+asciiexp = os.path.join(staticpath, "Landscape","outputs", "ASCII_NTrondelag.txt") # export in ascii (for ALMaSS)
+attrexp =  os.path.join(staticpath, "Landscape","outputs", "Attr_NTrondelag.csv")      # export attribute table (for ALMaSS)
 
 # Model settings
 arcpy.env.overwriteOutput = True
