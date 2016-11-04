@@ -20,7 +20,8 @@ print "... system modules checked"
 # Data - paths to data, output gdb, scratch folder and model landscape mask
 # All data have prior to running the script been imported into a file geodatabase
 # with the desired resolution.
-outPath = "o:/ST_LandskabsGenerering/Norway/Landscape/NTrondelag.gdb/"                  # Maps are stored here
+staticpath = "o:/ST_LandskabsGenerering/Norway/"
+outPath = os.path.join(staticpath, "Landscape/NTrondelag.gdb/")                  # Maps are stored here
 localSettings = "o:/ST_LandskabsGenerering/Norway/Landscape/project.gdb/outlineRaster"  # project folder with mask
 gisDB = "o:/ST_LandskabsGenerering/Norway/Landscape/norwaygis.gdb"                      # input features
 scratchDB = "o:/ST_LandskabsGenerering/Norway/Landscape/scratch"                        # scratch folder for tempfiles
