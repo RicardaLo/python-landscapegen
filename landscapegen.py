@@ -20,8 +20,8 @@ print "... system modules checked"
 # Data - paths to data, output gdb, scratch folder and model landscape mask
 # All data have prior to running the script been imported into a file geodatabase
 # with the desired resolution.
-staticpath = "o:/ST_LandskabsGenerering/Norway/"
-outPath = os.path.join(staticpath, "Landscape", "NTrondelag.gdb")                  # Maps are stored here
+staticpath = "o:/ST_LandskabsGenerering/Norway/NTrondelag/"
+outPath = os.path.join(staticpath, "Landscape", "NTrondelag.gdb/")                  # Maps are stored here
 localSettings = os.path.join(staticpath, "Landscape", "project.gdb/NTrondelagOutlineRaster")  # project folder with mask
 gisDB = os.path.join(staticpath, "RawData","NTrondelaggis.gdb")                      # input features
 scratchDB = os.path.join(staticpath,"scratch")                        # scratch folder for tempfiles
@@ -98,8 +98,9 @@ try:
 
     # Merge the 'matrikkel'maps into a single feature layer
     print '... merging matrikkel maps'
-    arcpy.Merge_management(['mat32_1702', 'mat32_1719', 'mat32_1721',
-    'mat32_1724', 'mat32_1725', 'mat32_1756'], outPath + 'MAT_merge')
+    matpath = "O:/ST_LandskabsGenerering/Norway/NTrondelag/RawData/Matrikkeldata/MatrikkelEdited.gdb/"
+    arcpy.Merge_management([matpath + 'mat32_1702', matpath + 'mat32_1719', matpath + 'mat32_1721',
+    matpath + 'mat32_1724', matpath + 'mat32_1725', matpath + 'mat32_1756'], outPath + 'MAT_merge')
     # Set local variables
     inTable = outPath + "MAT_merge"
     fieldName = "FARMID"
