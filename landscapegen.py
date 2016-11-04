@@ -23,7 +23,7 @@ print "... system modules checked"
 staticpath = "o:/ST_LandskabsGenerering/Norway/Landscape/"
 outPath = os.path.join(staticpath, "NTrondelag.gdb")                  # Maps are stored here
 localSettings = os.path.join(staticpath,"project.gdb/outlineRaster")  # project folder with mask
-gisDB = os.path.join(staticpath,"norwaygis.gdb")                      # input features
+gisDB = os.path.join(staticpath,"NTrondelaggis.gdb")                      # input features
 scratchDB = os.path.join(staticpath,"scratch")                        # scratch folder for tempfiles
 asciiexp = os.path.join(staticpath,"outputs", "ASCII_NTrondelag.txt") # export in ascii (for ALMaSS)
 attrexp =  os.path.join(staticpath,"outputs", "Attr_NTrondelag.csv")      # export attribute table (for ALMaSS)
