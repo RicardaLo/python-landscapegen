@@ -332,10 +332,16 @@ try:
     Paths = Raster(outPath + 'Paths')
     print '... stacking'
     step1 = Con(Buildings == 1, BaseMap, Buildings)
+    step1.save(outPath + 'step1')
+    step1 = Raster(outPath + 'step1')
     print 'Buildings added to BaseMap'
     step2 = Con(Pylons == 1, step1, Pylons)
+    step2.save(outPath + 'step2')
+    step2 = Raster(outPath + 'step2')
     print 'Pylons added to BaseMap'
     step3 = Con(Paths == 1, step2, Paths)
+    step3.save(outPath + 'step3')
+    step3 = Raster(outPath + 'step3')
     print 'Pylons added to BaseMap'
     step4 = Con(Railways == 1, step3, Railways)
     print 'stacking done - saving map'
