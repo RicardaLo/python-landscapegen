@@ -372,6 +372,7 @@ try:
         field_vals = [row.getValue(field.name) for field in fields]  
         w.writerow(field_vals)  
         del row
+    nowTime = time.strftime('%X %x') 
     print "Attribute table exported..." + nowTime 
 
 # convert regionalised map to ascii
