@@ -22,7 +22,7 @@ print "... system modules checked"
 # with the desired resolution.
 staticpath = "o:/ST_LandskabsGenerering/Norway/NTrondelag/"
 outPath = os.path.join(staticpath, "Landscape", "NTrondelag.gdb/")                  # Maps are stored here
-localSettings = os.path.join(staticpath, "Landscape", "project.gdb/NTrondelagOutlineRaster")  # project folder with mask
+localSettings = "U:/ArkivProjekter/Norway/project.gdb/outlineRaster"  # project folder with mask
 gisDB = os.path.join(staticpath, "RawData","NTrondelaggis.gdb")                      # input features
 scratchDB = os.path.join(staticpath,"scratch")                        # scratch folder for tempfiles
 asciiexp = os.path.join(staticpath, "Landscape","outputs", "ASCII_NTrondelag.txt") # export in ascii (for ALMaSS)
