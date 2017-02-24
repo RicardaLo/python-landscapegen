@@ -42,15 +42,15 @@ print "... model settings read"
 default = 0  # 1 -> run process; 0 -> not run process
 
 # Conversion  - features to raster layers
-Preparation = 1
+Preparation = default
 BaseMap = default
 Buildings_c = default
 Pylons_c = default
 Paths_c = default
 Railway_c = default
-CompleteMap_c = default  # Requires all the above layers
-Regionalize_c = default  # Requires the CompleteMap
-ConvertAscii_c = default  # Requires the RegionalizedMap
+CompleteMap_c = 1  # Requires all the above layers
+Regionalize_c = 1  # Requires the CompleteMap
+ConvertAscii_c = 1  # Requires the RegionalizedMap
 print " "
 
 #####################################################################################################
@@ -290,7 +290,9 @@ try:
     print '... converting buildings to raster'
     arcpy.PolygonToRaster_conversion(outPath + "BygningFlate_merge", "OBJTYPE", outPath + "tmpRaster", "CELL_CENTER", "NONE", "1")
     rasIsNull = IsNull(outPath + "tmpRaster")
-    rasTemp = Con(rasIsNull == 1, 1, 5)
+    rasIsNull.save(outPath + "isnull")  # bug work around
+    rasIsNullFile = Raster(outPath + "isnull")
+    rasTemp = Con(rasIsNullFile == 1, 1, 5)
     rasTemp.save(outPath + "Buildings")
     arcpy.Delete_management(outPath + "tmpRaster")
   
@@ -330,10 +332,16 @@ try:
     Paths = Raster(outPath + 'Paths')
     print '... stacking'
     step1 = Con(Buildings == 1, BaseMap, Buildings)
+    step1.save(outPath + 'step1')
+    step1 = Raster(outPath + 'step1')
     print 'Buildings added to BaseMap'
     step2 = Con(Pylons == 1, step1, Pylons)
+    step2.save(outPath + 'step2')
+    step2 = Raster(outPath + 'step2')
     print 'Pylons added to BaseMap'
     step3 = Con(Paths == 1, step2, Paths)
+    step3.save(outPath + 'step3')
+    step3 = Raster(outPath + 'step3')
     print 'Pylons added to BaseMap'
     step4 = Con(Railways == 1, step3, Railways)
     print 'stacking done - saving map'
@@ -364,6 +372,7 @@ try:
         field_vals = [row.getValue(field.name) for field in fields]  
         w.writerow(field_vals)  
         del row
+    nowTime = time.strftime('%X %x') 
     print "Attribute table exported..." + nowTime 
 
 # convert regionalised map to ascii
