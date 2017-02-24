@@ -21,12 +21,12 @@ print "... system modules checked"
 # All data have prior to running the script been imported into a file geodatabase
 # with the desired resolution.
 staticpath = "o:/ST_LandskabsGenerering/Norway/NTrondelag/"
-outPath = os.path.join(staticpath, "Landscape", "NTrondelag.gdb/")                  # Maps are stored here
+outPath = os.path.join(staticpath, "Landscape", "feb17test.gdb/")                  # Maps are stored here
 localSettings = "U:/ArkivProjekter/Norway/project.gdb/outlineRaster"  # project folder with mask
 gisDB = os.path.join(staticpath, "RawData","NTrondelaggis.gdb")                      # input features
 scratchDB = os.path.join(staticpath,"scratch")                        # scratch folder for tempfiles
-asciiexp = os.path.join(staticpath, "Landscape","outputs", "ASCII_NTrondelag.txt") # export in ascii (for ALMaSS)
-attrexp =  os.path.join(staticpath, "Landscape","outputs", "Attr_NTrondelag.csv")      # export attribute table (for ALMaSS)
+asciiexp = os.path.join(staticpath, "Landscape","outputs", "ASCII_feb17test.txt") # export in ascii (for ALMaSS)
+attrexp =  os.path.join(staticpath, "Landscape","outputs", "Attr_feb17test.csv")      # export attribute table (for ALMaSS)
 
 # Model settings
 arcpy.env.overwriteOutput = True
